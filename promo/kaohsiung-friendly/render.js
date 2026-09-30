@@ -16,7 +16,7 @@ const [,, mode, out, stills] = process.argv;
     await b.close(); return;
   }
   const FPS = 30, N = Math.round(await p.evaluate(() => DURATION) * FPS);
-  const ff = spawn(process.env.FF, ['-y','-f','image2pipe','-framerate',String(FPS),'-c:v','mjpeg','-i','-','-c:v','libx264','-pix_fmt','yuv420p','-crf','18','-preset','medium',out + '.video.mp4'], { stdio: ['pipe','ignore','inherit'] });
+  const ff = spawn(process.env.FF, ['-y','-f','image2pipe','-framerate',String(FPS),'-c:v','mjpeg','-i','-','-c:v','libx264','-pix_fmt','yuv420p','-crf','20','-maxrate','12M','-bufsize','24M','-preset','medium',out + '.video.mp4'], { stdio: ['pipe','ignore','inherit'] });
   for (let i = 0; i < N; i++) {
     await p.evaluate(t => render(t), i / FPS);
     const buf = await p.screenshot({ type: 'jpeg', quality: 95 });
