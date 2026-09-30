@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>友善營業場所宣傳片</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="scenes.js"></script>
+<style>
+:root{
+  --teal:#1FA48A; --teal-d:#0E7F6B; --pink:#D8327C; --blue:#2F8FD6; --orange:#F0892B;
+  --cream:#FFF9EE; --ink:#23303A; --muted:#5E6B74; --gold:#F5B82E; --mint:#5CCFBC; --sun:#F4C84A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--cream)}
+body{font-family:"Noto Sans TC",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;overflow:hidden;background:
+  radial-gradient(1200px 800px at 15% 10%,#E6F6F1 0,transparent 60%),
+  radial-gradient(1000px 700px at 90% 90%,#FDEAF2 0,transparent 60%),var(--cream)}
+.blob{position:absolute;border-radius:50%;filter:blur(60px)}
+.dot{position:absolute;border-radius:50%}
+.scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0}
+.a{will-change:transform,opacity}
+.hand{font-family:"LXGW WenKai TC",serif;font-weight:700}
+.en{font-family:"Poppins",sans-serif}
+.hl{position:relative;display:inline-block;z-index:0}
+.hl::after{content:"";position:absolute;left:-4%;right:-4%;bottom:6%;height:34%;background:var(--gold);opacity:.55;z-index:-1;border-radius:6px;transform-origin:left;transform:scaleX(var(--hl,0))}
+.kick{font-size:30px;font-weight:700;letter-spacing:.3em;color:var(--teal-d)}
+.logoImg{border-radius:50%;background:#fff;box-shadow:0 30px 70px rgba(20,90,80,.22)}
+
+/* S1 */
+#s1 .wrap{text-align:center}
+#s1 .l1{font-size:96px;font-weight:900;letter-spacing:.06em}
+#s1 .l2{font-size:52px;font-weight:500;color:var(--muted);margin-top:36px;letter-spacing:.04em}
+#s1 .step{display:block;margin:0 auto 56px;width:280px;height:120px}
+
+/* S2 */
+#s2{flex-direction:column;justify-content:flex-start}
+#s2 .title{font-size:64px;font-weight:900;margin-top:110px;text-align:center;letter-spacing:.04em}
+#s2 .title small{display:block;font-size:34px;font-weight:500;color:var(--muted);margin-top:18px;letter-spacing:.02em}
+#s2 .heroBox{position:absolute;left:0;bottom:0;width:100%;height:var(--heroH);overflow:hidden}
+#s2 .heroIn{position:absolute;left:0;top:0;height:100%;aspect-ratio:2000/593}
+#s2 .heroIn img{width:100%;height:100%;display:block}
+.chip{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center}
+.chip span{background:#fff;border-radius:999px;padding:12px 28px;font-size:32px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.12);white-space:nowrap;display:flex;align-items:center;gap:12px}
+.chip span i{width:16px;height:16px;border-radius:50%;display:inline-block}
+.chip b{width:3px;height:40px;background:currentColor;opacity:.5}
+
+/* S3 */
+#s3 .wrap{text-align:center}
+#s3 .l1{font-size:56px;font-weight:500;color:var(--muted);letter-spacing:.06em}
+#s3 .l2{font-size:104px;font-weight:900;margin-top:30px;letter-spacing:.04em}
+#s3 .l2 em{font-style:normal;color:var(--teal)}
+
+/* S4 logo */
+#s4 .wrap{display:flex;align-items:center;gap:90px}
+#s4 .logoWrap{position:relative;width:440px;height:440px;flex:none}
+#s4 .logoWrap img{position:absolute;inset:0;width:100%;height:100%}
+#s4 .ring{position:absolute;inset:-30px;border-radius:50%;border:6px solid var(--teal);opacity:0}
+#s4 .ring.r2{border-color:var(--pink);inset:-60px;border-width:3px}
+#s4 .txt .t1{font-size:96px;font-weight:900;letter-spacing:.06em;line-height:1.15}
+#s4 .txt .t2{font-size:34px;font-weight:600;color:var(--teal-d);letter-spacing:.08em;margin-top:14px}
+#s4 .txt .t3{font-size:78px;color:var(--orange);margin-top:44px;letter-spacing:.14em}
+
+/* Stat */
+#sStat .wrap{text-align:center;position:relative}
+#sStat .pre{font-size:50px;font-weight:700;color:var(--muted);letter-spacing:.08em}
+#sStat .numBox{position:relative;width:560px;height:560px;margin:30px auto;display:flex;align-items:center;justify-content:center}
+#sStat .numBox svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+#sStat .num{font-family:"Poppins",sans-serif;font-weight:700;font-size:176px;color:var(--teal);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#sStat .num small{font-family:"Noto Sans TC";font-size:72px;font-weight:900;color:var(--ink);margin-left:8px}
+#sStat .post{font-size:58px;font-weight:900;letter-spacing:.05em}
+#sStat .pin{position:absolute;width:44px;height:44px}
+.H #sStat .wrap{display:flex;align-items:center;gap:40px;text-align:left}
+.H #sStat .numBox{margin:0}
+.H #sStat .post{margin-top:24px;line-height:1.35}
+
+/* S5 categories */
+#s5{flex-direction:column}
+#s5 .head{font-size:72px;font-weight:900;letter-spacing:.05em;text-align:center}
+#s5 .sub{font-size:36px;color:var(--muted);margin-top:18px;text-align:center}
+#s5 .cats{display:flex;gap:40px;margin-top:90px}
+.cat{width:360px;height:250px;border-radius:32px;position:relative;display:flex;align-items:flex-end;padding:36px 40px;font-size:48px;font-weight:900;overflow:hidden}
+.cat .ic{position:absolute;top:28px;right:30px;width:120px;height:120px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,.08)}
+.cat .ic svg{width:64px;height:64px}
+.cat .hatch{position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:50%;background:repeating-linear-gradient(135deg,rgba(0,0,0,.08) 0 2px,transparent 2px 9px)}
+
+/* Standards */
+#sStd{flex-direction:column}
+#sStd .head{font-size:68px;font-weight:900;letter-spacing:.04em;text-align:center}
+#sStd .sub{font-size:34px;color:var(--muted);margin-top:14px;text-align:center}
+#sStd .rows{margin-top:64px;display:flex;flex-direction:column;gap:46px}
+.srow{display:flex;align-items:center;gap:40px}
+.srow .lab{width:230px;flex:none;font-size:40px;font-weight:900;padding:18px 0;border-radius:20px;text-align:center;color:#fff}
+.srow .items{display:flex;gap:18px}
+.si{width:228px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.si .c{width:120px;height:120px;border-radius:34px;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 30px rgba(0,0,0,.08)}
+.si .c svg{width:70px;height:70px}
+.si p{font-size:26px;font-weight:700;margin-top:16px;line-height:1.35;min-height:70px}
+
+/* S6 features */
+.feat{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0}
+.feat .bg,.feat .bgc{position:absolute;inset:-40px}
+.feat .bg{background-size:cover;background-position:center;filter:blur(40px) saturate(1.2);opacity:.55}
+.feat .bgc{background:linear-gradient(90deg,rgba(255,249,238,.35),rgba(255,249,238,.92) 60%)}
+.feat .in{position:relative;display:flex;align-items:center;gap:80px}
+.feat .ph{width:1060px;height:660px;border-radius:28px;overflow:hidden;box-shadow:0 40px 80px rgba(20,40,40,.25);border:10px solid #fff;flex:none}
+.feat .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.feat .info{width:560px}
+.tag{display:inline-block;font-size:28px;font-weight:700;padding:8px 22px;border-radius:12px;color:#fff}
+.feat .nm{font-size:66px;font-weight:900;line-height:1.2;margin-top:26px}
+.feat .ad{font-size:32px;color:var(--muted);margin-top:22px;display:flex;align-items:center;gap:10px}
+.feat .yr{font-size:30px;margin-top:30px;font-weight:700;display:flex;align-items:center;gap:14px}
+.stars{color:var(--gold);letter-spacing:4px}
+.kicker{position:absolute;top:70px;left:0;right:0;text-align:center;z-index:2}
+
+/* S7 wall */
+#s7 .wrap{display:flex;align-items:center;gap:70px}
+#s7 .side{width:560px}
+#s7 .side .h{font-size:76px;font-weight:900;line-height:1.3;letter-spacing:.03em}
+#s7 .side .p{font-size:34px;color:var(--muted);margin-top:30px;line-height:1.6}
+#s7 .grid{display:grid;grid-template-columns:repeat(3,360px);gap:24px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 14px 34px rgba(20,40,40,.12)}
+.card .im{height:190px;position:relative;overflow:hidden}
+.card .im img{width:100%;height:100%;object-fit:cover;display:block}
+.card .im .tag{position:absolute;left:12px;top:12px;font-size:18px;padding:4px 12px;border-radius:8px}
+.card .cn{font-size:23px;font-weight:700;padding:14px 16px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .cd{font-size:17px;color:var(--muted);padding:0 16px 16px;display:flex;justify-content:space-between}
+
+/* S8 message */
+#s8 .wrap{text-align:center}
+#s8 .l1{font-size:60px;font-weight:500;color:var(--muted);letter-spacing:.06em}
+#s8 .l2{font-size:100px;font-weight:900;margin-top:34px;letter-spacing:.04em;line-height:1.3}
+
+/* Process */
+#sProc{flex-direction:column}
+#sProc .head{font-size:80px;font-weight:900;letter-spacing:.04em;text-align:center;margin-top:22px;line-height:1.3}
+#sProc .steps{position:relative;display:flex;gap:0;margin-top:90px}
+#sProc .line{position:absolute;left:150px;right:150px;top:58px;height:6px;background:linear-gradient(90deg,var(--teal),var(--blue),var(--pink));border-radius:3px;transform-origin:left}
+.st{width:300px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+.st .n{width:122px;height:122px;border-radius:50%;background:#fff;border:6px solid var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 14px 30px rgba(20,90,80,.15)}
+.st .n small{font-family:Poppins;font-size:18px;font-weight:600;color:var(--muted);letter-spacing:.1em}
+.st .n b{font-family:Poppins;font-size:44px;line-height:1;color:var(--teal-d)}
+.st p{font-size:32px;font-weight:700;margin-top:26px;line-height:1.4}
+.st p span{display:block;font-size:24px;font-weight:500;color:var(--muted)}
+
+/* Benefits */
+#sBen .wrap{display:flex;align-items:center;gap:70px}
+#sBen .left{width:720px}
+#sBen .left .h{font-size:72px;font-weight:900;line-height:1.3}
+#sBen ul{list-style:none;margin-top:40px;display:flex;flex-direction:column;gap:20px}
+#sBen li{display:flex;align-items:center;gap:22px;font-size:34px;font-weight:700;background:#fff;border-radius:20px;padding:18px 26px;box-shadow:0 10px 24px rgba(20,40,40,.07)}
+#sBen li i{flex:none;width:48px;height:48px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center}
+#sBen .big{width:620px;height:620px;border-radius:48px;background:linear-gradient(145deg,#1FA48A,#128C9E);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 40px 80px rgba(18,120,120,.3);position:relative;overflow:hidden}
+#sBen .big::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:rgba(255,255,255,.08);right:-200px;top:-200px}
+#sBen .big .k{font-size:40px;font-weight:700;opacity:.92}
+#sBen .big .amt{font-family:Poppins;font-weight:700;font-size:170px;line-height:1.05;margin-top:16px;font-variant-numeric:tabular-nums}
+#sBen .big .amt small{font-family:"Noto Sans TC";font-size:60px;font-weight:900}
+#sBen .big .u{font-size:40px;font-weight:900;margin-top:6px}
+#sBen .big .f{font-size:26px;margin-top:40px;background:rgba(255,255,255,.18);padding:10px 26px;border-radius:999px}
+
+/* End */
+#s9 .wrap{display:flex;flex-direction:column;align-items:center;text-align:center}
+#s9 img{width:280px;height:280px}
+#s9 .t1{font-size:70px;font-weight:900;margin-top:40px;letter-spacing:.05em}
+#s9 .t2{font-size:40px;color:var(--orange);margin-top:20px;letter-spacing:.14em}
+#s9 .links{display:flex;gap:26px;margin-top:50px}
+#s9 .pill{display:flex;align-items:center;gap:16px;background:#fff;border-radius:999px;padding:20px 38px 20px 26px;font-size:32px;font-weight:700;box-shadow:0 18px 40px rgba(20,40,40,.12);border:3px solid var(--teal);white-space:nowrap}
+#s9 .pill.fb{border-color:#1877F2}
+#s9 .pill svg{width:40px;height:40px;flex:none}
+#s9 .share{margin-top:44px;font-size:34px;font-weight:700;color:var(--pink);letter-spacing:.06em}
+
+#fade{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+
+/* ===== Vertical 9:16 ===== */
+.V #s1 .l1{font-size:88px}
+.V #s1 .l2{font-size:46px;line-height:1.6}
+.V #s2 .title{margin-top:300px;font-size:74px;line-height:1.3}
+.V #s2 .title small{font-size:38px;line-height:1.5}
+.V .chip span{font-size:34px}
+.V #s3 .l2{font-size:92px;line-height:1.4}
+.V #s4 .wrap{flex-direction:column;gap:70px;text-align:center}
+.V #s4 .logoWrap{width:480px;height:480px}
+.V #s4 .txt .t1{font-size:92px}
+.V #s4 .txt .t2{font-size:30px}
+.V #sStat .numBox{width:640px;height:640px}
+.V #sStat .num{font-size:196px}
+.V #sStat .post{line-height:1.45}
+.V #s5 .cats{display:grid;grid-template-columns:repeat(2,440px);gap:40px}
+.V .cat{width:440px;height:300px;font-size:54px}
+.V #s5 .head{font-size:84px;line-height:1.35}
+.V #sStd .head{font-size:76px;line-height:1.35}
+.V #sStd .rows{gap:70px}
+.V .srow{flex-direction:column;gap:30px}
+.V .srow .lab{width:auto;padding:14px 50px}
+.V .srow .items{gap:6px}
+.V .si{width:200px}
+.V .si .c{width:124px;height:124px}
+.V .si p{font-size:25px}
+.V .feat .in{flex-direction:column;gap:56px}
+.V .feat .ph{width:960px;height:700px}
+.V .feat .info{width:960px;text-align:center}
+.V .feat .ad,.V .feat .yr{justify-content:center}
+.V .feat .nm{font-size:72px}
+.V .feat .bgc{background:linear-gradient(180deg,rgba(255,249,238,.4),rgba(255,249,238,.92) 60%)}
+.V .kicker{top:150px}
+.V #s7 .wrap{flex-direction:column;gap:60px}
+.V #s7 .side{width:960px;text-align:center}
+.V #s7 .side .h{font-size:78px}
+.V #s7 .grid{grid-template-columns:repeat(3,316px);gap:22px}
+.V .card .im{height:200px}
+.V .card .cn{font-size:22px}
+.V #s8 .l2{font-size:88px;line-height:1.45}
+.V #sProc .steps{flex-direction:column;gap:34px;margin-top:80px}
+.V #sProc .line{left:58px;right:auto;top:60px;bottom:60px;width:6px;height:auto;background:linear-gradient(180deg,var(--teal),var(--blue),var(--pink));transform-origin:top}
+.V .st{width:860px;flex-direction:row;text-align:left;gap:40px}
+.V .st p{margin-top:0;font-size:44px}
+.V .st p span{font-size:30px}
+.V #sBen .wrap{flex-direction:column;gap:50px}
+.V #sBen .left{width:960px}
+.V #sBen .left .h{text-align:center;font-size:78px}
+.V #sBen li{font-size:36px}
+.V #sBen .big{width:960px;height:520px}
+.V #s9 img{width:400px;height:400px}
+.V #s9 .t1{font-size:74px;line-height:1.35}
+.V #s9 .links{flex-direction:column;gap:22px}
+.V #s9 .pill{font-size:36px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bgfx"></div>
+
+  <section class="scene" id="s1">
+    <div class="wrap">
+      <svg class="step a" data-a="0.5 1 fade" viewBox="0 0 280 120"><path id="stepPath" d="M10 100 H110 V60 H170 V20 H270" fill="none" stroke="#1FA48A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+      <div class="l1 a" data-a="1 0.9 chars">一扇門、一道台階</div>
+      <div class="l2 a" data-a="3 1 up">對有些人來說，<br class="vbr">是每天都要跨越的距離</div>
+    </div>
+  </section>
+
+  <section class="scene" id="s2">
+    <div class="title a" data-a="0.5 0.9 up">每一天，<br class="vbr">都有人這樣出門<small class="a" data-a="1.5 0.9 up">他們，可能是你的家人、朋友，<br class="vbr">或是未來的你</small></div>
+    <div class="heroBox a" data-a="0.5 1.2 fade">
+      <div class="heroIn" id="heroIn">
+        <img src="assets/hero.jpg" alt="">
+        <div class="chip a" data-a="2 0.6 pop" style="left:13%;top:44%;color:#8BB84A"><span><i style="background:#8BB84A"></i>推嬰兒車的爸媽</span><b></b></div>
+        <div class="chip a" data-a="3.5 0.6 pop" style="left:38%;top:33%;color:var(--blue)"><span><i style="background:var(--blue)"></i>準媽媽</span><b></b></div>
+        <div class="chip a" data-a="5 0.6 pop" style="left:63.5%;top:32%;color:var(--pink)"><span><i style="background:var(--pink)"></i>輪椅使用者</span><b></b></div>
+        <div class="chip a" data-a="6 0.6 pop" style="left:87%;top:27%;color:var(--orange)"><span><i style="background:var(--orange)"></i>銀髮長輩</span><b></b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="s3">
+    <div class="wrap">
+      <div class="l1 a" data-a="0.5 0.9 up">他們需要的，其實不多</div>
+      <div class="l2 a" data-a="2 1 blur">只是一個<br class="vbr"><em class="hl" id="hl3">友善</em>的空間</div>
+    </div>
+  </section>
+
+  <section class="scene" id="s4">
+    <div class="wrap">
+      <div class="logoWrap">
+        <div class="ring" id="ring1"></div><div class="ring r2" id="ring2"></div>
+        <img class="a logoImg" src="assets/logo.png" data-a="0.5 1.1 spin" alt="">
+      </div>
+      <div class="txt">
+        <div class="t1 a" data-a="1.5 0.9 chars">高雄市<br>友善營業場所</div>
+        <div class="t2 en a" data-a="3 0.9 wipe">KAOHSIUNG FRIENDLY BUSINESS LOCATION</div>
+        <div class="t3 hand a" data-a="4 1.2 wipe">友你有我．從心出發</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="sStat">
+    <div class="wrap">
+      <div class="numBox a" data-a="0.5 0.8 pop">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#E3EFEB" stroke-width="3"/><circle id="statRing" cx="50" cy="50" r="46" fill="none" stroke="url(#gr)" stroke-width="3.4" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1FA48A"/><stop offset="1" stop-color="#D8327C"/></linearGradient></defs></svg>
+        <div class="num"><span id="statNum">0</span><small>家</small></div>
+      </div>
+      <div>
+        <div class="pre a" data-a="0.5 0.8 up">全高雄已有</div>
+        <div class="post a" data-a="2 0.9 up">店家獲頒<br><span style="color:var(--teal)">友善營業場所</span>認證</div>
+        <div class="pre a" data-a="3.5 0.8 up" style="font-size:34px;margin-top:22px;font-weight:500">而且，每年都在增加</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="s5">
+    <div class="head a" data-a="0.5 0.9 up">友善，就在你身邊</div>
+    <div class="sub a" data-a="1 0.9 up">從日常的一餐，到看診、拿藥、買東西</div>
+    <div class="cats">
+      <div class="cat a" data-a="2 0.7 pop" style="background:#D6E7FB">餐飲<div class="hatch"></div><div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#4A90D9" stroke-width="4" stroke-linecap="round"><path d="M18 8v18a6 6 0 0 0 12 0V8M24 8v48M44 8c-6 4-8 12-8 20h8v28"/></svg></div></div>
+      <div class="cat a" data-a="2.5 0.7 pop" style="background:#FCEBD9">診所<div class="hatch"></div><div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#E7A04B" stroke-width="4" stroke-linejoin="round"><path d="M10 56V22l22-12 22 12v34z"/><path d="M32 26v18M23 35h18" stroke-linecap="round"/></svg></div></div>
+      <div class="cat a" data-a="3 0.7 pop" style="background:#D6F2EE">藥局<div class="hatch"></div><div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#3BB3A4" stroke-width="4"><rect x="10" y="22" width="44" height="20" rx="10" transform="rotate(-35 32 32)"/><path d="M26 22l12 20" transform="rotate(-35 32 32)"/></svg></div></div>
+      <div class="cat a" data-a="3.5 0.7 pop" style="background:#E4E6FB">一般商店<div class="hatch"></div><div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="#8B8FE0" stroke-width="4" stroke-linejoin="round"><path d="M8 24l6-14h36l6 14c0 5-4 8-8 8s-8-3-8-8c0 5-4 8-8 8s-8-3-8-8c0 5-4 8-8 8s-8-3-8-8z"/><path d="M14 32v22h36V32M26 54V42h12v12"/></svg></div></div>
+    </div>
+  </section>
+
+  <section class="scene" id="sStd">
+    <div class="head a" data-a="0.5 0.9 up">「友善」，有明確的標準</div>
+    <div class="sub a" data-a="1 0.9 up">實地訪查、逐項評選，才能拿到這枚標章</div>
+    <div class="rows">
+      <div class="srow" id="rowEnv"><div class="lab a" data-a="2 0.6 pop" style="background:#EDB92E">友善環境</div><div class="items"></div></div>
+      <div class="srow" id="rowAct"><div class="lab a" data-a="4.5 0.6 pop" style="background:#3DBBA6">友善措施</div><div class="items"></div></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s6">
+    <div class="kicker kick en a" data-a="0.5 0.8 fade">REAL PLACES · REAL FRIENDLINESS</div>
+  </section>
+
+  <section class="scene" id="s7">
+    <div class="wrap">
+      <div class="side">
+        <div class="h a" data-a="0.5 0.9 up">友善，正在<br>高雄的每個角落<br><span class="hl" id="hl7">發生</span></div>
+        <div class="p a" data-a="1.5 0.9 up">餐廳、診所、藥局、街角小店<br>年年評選，一家一家增加</div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s8">
+    <div class="wrap">
+      <div class="l1 a" data-a="0.5 0.9 up">無障礙，不只是一道斜坡</div>
+      <div class="l2 a" data-a="2 1.1 blur">更是願意<br class="vbr">多想一步的<span style="color:var(--pink)">心意</span></div>
+    </div>
+  </section>
+
+  <section class="scene" id="sProc">
+    <div class="kick a" data-a="0.5 0.8 fade">給店家的邀請</div>
+    <div class="head a" data-a="0.5 0.9 up">你的店，<br class="vbr">也能是下一個友善角落</div>
+    <div class="steps">
+      <div class="line" id="procLine"></div>
+    </div>
+  </section>
+
+  <section class="scene" id="sBen">
+    <div class="wrap">
+      <div class="left">
+        <div class="h a" data-a="0.5 0.9 up">加入認證，<br class="hbr">好處不只一個</div>
+        <ul id="benList"></ul>
+      </div>
+      <div class="big a" data-a="1.5 0.8 pop">
+        <div class="k">獲認證後修繕營業空間</div>
+        <div class="amt">最高 <span id="benAmt">0</span></div>
+        <div class="u">元補助</div>
+        <div class="f">適用 20～90 坪中小型營業場所</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="s9">
+    <div class="wrap">
+      <img class="a logoImg" src="assets/logo.png" data-a="0.5 1 spin" alt="">
+      <div class="t1 a" data-a="1.5 0.9 up">看見這個標章<br class="vbr">就是友善的承諾</div>
+      <div class="t2 hand a" data-a="2.5 1 wipe">友你有我．從心出發</div>
+      <div class="links">
+        <div class="pill a" data-a="4 0.7 pop"><svg viewBox="0 0 40 40" fill="none" stroke="#1FA48A" stroke-width="3.5" stroke-linecap="round"><circle cx="20" cy="20" r="15"/><path d="M5 20h30M20 5c-6 7-6 23 0 30M20 5c6 7 6 23 0 30"/></svg><span class="en">www.friendlycity.url.tw</span></div>
+        <div class="pill fb a" data-a="4.5 0.7 pop"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#1877F2"/><path d="M22 33V22h4l.6-4.5H22v-3c0-1.3.4-2.2 2.2-2.2h2.5v-4a33 33 0 0 0-3.6-.2c-3.6 0-6 2.2-6 6.2v3.3h-4V22h4v11z" fill="#fff"/></svg>FB 粉絲團 <span class="en" style="color:#1877F2">KaoLoveLife</span></div>
+      </div>
+      <div class="share a" data-a="5.5 0.9 up">♥ 分享出去，讓友善被更多人看見</div>
+    </div>
+  </section>
+
+  <div id="fade"></div>
+</div>
+
+<script>
+const Q = new URLSearchParams(location.search);
+const A = f => (window.ASSETS && ASSETS[f]) || 'assets/' + f; // 素材路徑（打包版改用內嵌）
+const V = Q.get('v') === '1';
+document.body.classList.add(V ? 'V' : 'H');
+document.querySelectorAll(V ? '.hbr' : '.vbr').forEach(b => b.remove());
+const W = V ? 1080 : 1920, H = V ? 1920 : 1080;
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
+document.documentElement.style.setProperty('--heroH', (V ? 720 : 560) + 'px');
+
+// ── 時間軸：全部以「拍」為單位，來源是 scenes.js（配樂也讀同一份） ──
+const BEAT = 60 / PROJECT.bpm, XF = PROJECT.crossfade;
+const ST = {}, SB = {}; let accB = 0;
+PROJECT.scenes.forEach(sc => { SB[sc.id] = accB; ST[sc.id] = [accB * BEAT, (accB + sc.beats) * BEAT]; accB += sc.beats; });
+const DURATION = accB * BEAT + PROJECT.tail;
+ST[PROJECT.scenes.at(-1).id][1] = DURATION + 1;
+const S = id => ST[id][0];
+const B = n => n * BEAT;                // 拍 → 秒
+const at = (id, beats) => S(id) + B(beats); // 場景內第 n 拍
+
+const STORES = [
+  ['MINI.D COFFEE 仁雄館','餐飲','仁武區','114'],
+  ['福音復健科診所','診所','左營區','112'],
+  ['九湯屋日本拉麵(仁武店)','餐飲','仁武區','109'],
+  ['福樂多醫療福祉事業','一般商店','鼓山區','108'],
+  ['為好診所','診所','鼓山區','106'],
+  ['順億鮪魚專賣店-右昌門市','餐飲','楠梓區','114'],
+  ['菜市仔彩券行','一般商店','鳳山區','113'],
+  ['御書房生活藝術空間','餐飲','苓雅區','113'],
+  ['洋咖啡','餐飲','左營區','113'],
+];
+const TAGC = {'餐飲':'#4A90D9','診所':'#E7A04B','藥局':'#3BB3A4','一般商店':'#8B8FE0'};
+const sv = (p) => `<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ENV = [
+  ['無障礙廁所', sv('<circle cx="22" cy="12" r="4.5" fill="#fff"/><path d="M22 20v16h14l6 14"/><path d="M16 28a13 13 0 1 0 20 16"/><path d="M42 12l3 12 3-9 3 9 3-12M58 34c-2-3-8-3-8 4s6 7 8 4"/>')],
+  ['桌子高度可容膝', sv('<path d="M6 22h52M12 22v30M52 22v30M10 30h44"/>')],
+  ['通道無阻礙', sv('<path d="M8 32h40M38 20l12 12-12 12"/><path d="M8 12v40M58 12v40" stroke-dasharray="4 6"/>')],
+  ['地面整潔乾淨', sv('<path d="M10 54l8-22h28l8 22zM32 32v22M14 43h36"/><path d="M26 8v12M20 14h12M44 6v8M40 10h8"/>')],
+  ['出入口平順<br>無高低差', sv('<circle cx="32" cy="32" r="22"/><path d="M20 32h22M34 23l9 9-9 9"/>')],
+];
+const ACT = [
+  ['友善服務鈴', sv('<path d="M18 44V30a14 14 0 0 1 28 0v14l4 4H14zM28 54a4 4 0 0 0 8 0M32 10v6"/><path d="M8 24a26 26 0 0 1 6-10M56 24a26 26 0 0 0-6-10"/>')],
+  ['導盲犬可進入', sv('<path d="M14 26l4-8 6 4h14l6 10v18M20 50V32M26 32h18M44 50V40M20 22c-4 0-6 4-6 6"/><path d="M40 22l12-14"/>')],
+  ['電動輪椅代步車<br>友善充電座', sv('<path d="M36 6L22 34h12l-4 24 16-30H34z" fill="#fff"/>')],
+  ['易讀訂購(菜)單', sv('<path d="M32 18c-6-4-14-5-22-4v36c8-1 16 0 22 4 6-4 14-5 22-4V14c-8-1-16 0-22 4zM32 18v36"/><path d="M16 26h9M16 34h9M39 26h9M39 34h9"/>')],
+  ['個別化服務<br>免下車服務', sv('<path d="M8 44V34l6-12h26l8 12h8v10z"/><circle cx="18" cy="46" r="5" fill="#fff"/><circle cx="46" cy="46" r="5" fill="#fff"/><path d="M16 32h26"/>')],
+];
+[[ENV, 'rowEnv', '#F4C84A', 2.5], [ACT, 'rowAct', '#5CCFBC', 5]].forEach(([list, id, col, t0]) => {
+  const box = document.querySelector(`#${id} .items`);
+  list.forEach(([n, ic], i) => {
+    const d = document.createElement('div');
+    d.className = 'si a'; d.dataset.a = `${t0 + i * .25} 0.6 pop`;
+    d.innerHTML = `<div class="c" style="background:${col}">${ic}</div><p>${n}</p>`;
+    box.appendChild(d);
+  });
+});
+
+const PROC = [['實地訪查', '提供改善建議'], ['環境修繕', '商家調整空間'], ['星等評選', '友善商家評比'], ['頒發標章', '正式認證'], ['多元行銷', '官網・臉書・記者會']];
+const steps = document.querySelector('#sProc .steps');
+PROC.forEach(([a, b], i) => {
+  const d = document.createElement('div');
+  d.className = 'st a'; d.dataset.a = `${2 + i} 0.6 pop`;
+  d.innerHTML = `<div class="n"><small>STEP</small><b>${i + 1}</b></div><p>${a}<span>${b}</span></p>`;
+  steps.appendChild(d);
+});
+const BEN = ['環境友善，顧客更安全便利', '公益正向評價，提升商家形象', '官網與 FB 微短片行銷，帶來人流', '記者會曝光，增加知名度'];
+const ul = document.getElementById('benList');
+BEN.forEach((b, i) => {
+  const li = document.createElement('li');
+  li.className = 'a'; li.dataset.a = `${2 + i * .5} 0.6 left`;
+  li.innerHTML = `<i><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></i>${b}`;
+  ul.appendChild(li);
+});
+
+const s6 = document.getElementById('s6');
+const FEAT = [1, 6, 7, 5], FD_B = 3; // 每家店 3 拍
+const FD = B(FD_B);
+FEAT.forEach((k, i) => {
+  const [n, c, d, y] = STORES[k];
+  const f = document.createElement('div');
+  f.className = 'feat'; f.dataset.b0 = i * FD_B;
+  f.innerHTML = `<div class="bg" style="background-image:url(${A(`s${k}.jpg`)})"></div><div class="bgc"></div>
+    <div class="in"><div class="ph"><img src="${A(`s${k}.jpg`)}" alt=""></div>
+    <div class="info"><span class="tag" style="background:${TAGC[c]}">${c}</span>
+    <div class="nm">${n}</div>
+    <div class="ad"><svg width="30" height="30" viewBox="0 0 24 24" fill="#D8327C"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>高雄市${d}</div>
+    <div class="yr">${y}年度 <span class="stars">★★★★★</span></div></div></div>`;
+  s6.insertBefore(f, s6.firstChild);
+});
+const grid = document.getElementById('grid');
+STORES.forEach(([n, c, d, y], k) => {
+  const el = document.createElement('div');
+  el.className = 'card a'; el.dataset.a = `${1 + k * .25} 0.7 pop`;
+  el.innerHTML = `<div class="im"><img src="${A(`s${k}.jpg`)}" alt=""><span class="tag" style="background:${TAGC[c]}">${c}</span></div>
+    <div class="cn">${n}</div><div class="cd"><span>高雄市${d}</span><span>${y}年度 <span class="stars" style="letter-spacing:1px">★★★★★</span></span></div>`;
+  grid.appendChild(el);
+});
+
+// background fx (deterministic)
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const bgfx = document.getElementById('bgfx');
+const COLORS = ['#1FA48A','#D8327C','#2F8FD6','#F0892B','#F5B82E'];
+const blobs = [], dots = [];
+for (let i = 0; i < 5; i++) {
+  const b = document.createElement('div'); b.className = 'blob';
+  const s = 380 + rnd() * 320;
+  Object.assign(b.style, {width: s + 'px', height: s + 'px', background: COLORS[i]});
+  b._p = {x: rnd() * W, y: rnd() * H, ph: rnd() * 6.28, sp: .08 + rnd() * .08, amp: 120 + rnd() * 120};
+  b.style.opacity = .10 + rnd() * .08; bgfx.appendChild(b); blobs.push(b);
+}
+for (let i = 0; i < 26; i++) {
+  const d = document.createElement('div'); d.className = 'dot';
+  const s = 6 + rnd() * 16;
+  Object.assign(d.style, {width: s + 'px', height: s + 'px', background: COLORS[i % 5]});
+  d._p = {x: rnd() * W, y: rnd() * H, sp: 10 + rnd() * 26, ph: rnd() * 6.28, op: .18 + rnd() * .3};
+  bgfx.appendChild(d); dots.push(d);
+}
+
+document.querySelectorAll('[data-a$="chars"]').forEach(el => {
+  const out = [];
+  el.childNodes.forEach(n => {
+    if (n.nodeType === 3) [...n.textContent].forEach(ch => out.push(`<span class="ch" style="display:inline-block">${ch}</span>`));
+    else out.push(n.outerHTML);
+  });
+  el.innerHTML = out.join('');
+});
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const eo = p => 1 - Math.pow(1 - p, 3);
+const eio = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const back = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+const seg = (t, a, d) => clamp((t - a) / d);
+
+const scenes = [...document.querySelectorAll('.scene')];
+const anims = [...document.querySelectorAll('[data-a]')].map(el => {
+  const [s, d, type] = el.dataset.a.split(' ');
+  const base = S(el.closest('.scene').id);
+  return {el, s: base + B(+s), d: +d, type, chars: [...el.querySelectorAll('.ch')]};
+});
+
+function applyAnim(A, t) {
+  const p = seg(t, A.s, A.d), e = eo(p), el = A.el;
+  switch (A.type) {
+    case 'fade': el.style.opacity = e; break;
+    case 'up': el.style.opacity = e; el.style.transform = `translateY(${(1 - e) * 44}px)`; break;
+    case 'left': el.style.opacity = e; el.style.transform = `translateX(${(1 - e) * -60}px)`; break;
+    case 'pop': el.style.opacity = clamp(p * 2.5); el.style.transform = `scale(${.6 + .4 * back(p)})`; break;
+    case 'blur': el.style.opacity = e; el.style.filter = `blur(${(1 - e) * 18}px)`; el.style.transform = `scale(${1.08 - .08 * e})`; break;
+    case 'wipe': el.style.clipPath = `inset(-20% ${(1 - eio(p)) * 100}% -20% 0)`; break;
+    case 'spin': el.style.opacity = clamp(p * 2); el.style.transform = `scale(${.3 + .7 * back(p)}) rotate(${(1 - eo(p)) * -120}deg)`; break;
+    case 'chars': {
+      const n = A.chars.length, st = Math.min(.07, A.d / n);
+      A.chars.forEach((c, i) => {
+        const q = eo(seg(t, A.s + i * st, .55));
+        c.style.opacity = q; c.style.transform = `translateY(${(1 - q) * 50}px)`;
+      });
+      break;
+    }
+  }
+}
+const $ = id => document.getElementById(id);
+
+function render(t) {
+  blobs.forEach(b => { const p = b._p;
+    b.style.transform = `translate(${p.x + Math.sin(t * p.sp + p.ph) * p.amp - 250}px,${p.y + Math.cos(t * p.sp * .8 + p.ph) * p.amp - 250}px)`; });
+  dots.forEach(d => { const p = d._p;
+    const y = ((p.y - t * p.sp) % (H + 40) + H + 40) % (H + 40) - 20;
+    d.style.transform = `translate(${p.x + Math.sin(t * .5 + p.ph) * 20}px,${y}px)`;
+    d.style.opacity = p.op * (0.6 + 0.4 * Math.sin(t * 1.3 + p.ph)); });
+
+  scenes.forEach(sc => {
+    const [a0, b0] = ST[sc.id], a = a0 - XF / 2, b = b0 + XF / 2;
+    const o = Math.min(seg(t, a, XF), 1 - seg(t, b - XF, XF));
+    sc.style.opacity = o;
+    sc.style.visibility = o > 0 ? 'visible' : 'hidden';
+    const out = seg(t, b - XF, XF);
+    sc.style.transform = out > 0 ? `scale(${1 + out * .04})` : '';
+    sc.style.filter = out > 0 ? `blur(${out * 6}px)` : '';
+  });
+  anims.forEach(A => applyAnim(A, t));
+
+  $('stepPath').style.strokeDashoffset = 1 - eio(seg(t, at('s1', .5), 1.6));
+  // hero
+  const heroW = (V ? 720 : 560) * 2000 / 593, maxPan = Math.max(0, heroW - W);
+  const offX = V ? -eio(seg(t, at('s2', 2), 4.6)) * maxPan : (W - heroW) / 2;
+  $('heroIn').style.transform = `translateX(${offX}px) scale(${1 + seg(t, S('s2'), B(9)) * .03})`;
+  $('heroIn').style.transformOrigin = '50% 100%';
+  $('hl3').style.setProperty('--hl', eio(seg(t, at('s3', 3), .7)));
+  $('hl7').style.setProperty('--hl', eio(seg(t, at('s7', 2.5), .7)));
+  [['ring1', 1], ['ring2', 1.5]].forEach(([id, s]) => {
+    const p = seg(t, at('s4', s), 1.4), r = $(id);
+    r.style.opacity = p > 0 && p < 1 ? (1 - p) * .9 : 0;
+    r.style.transform = `scale(${.8 + p * .5})`;
+  });
+  // stat counter
+  const sp = seg(t, at('sStat', 1), B(3));
+  $('statNum').textContent = Math.round(eo(sp) * 285);
+  $('statRing').style.strokeDashoffset = 1 - eo(sp);
+  // process line
+  const lp = eio(seg(t, at('sProc', 2), B(4)));
+  $('procLine').style.transform = V ? `scaleY(${lp})` : `scaleX(${lp})`;
+  // benefit amount
+  $('benAmt').textContent = (Math.round(eo(seg(t, at('sBen', 2), B(2))) * 50) * 100).toLocaleString('en-US');
+  // features
+  document.querySelectorAll('.feat').forEach(f => {
+    const i = FEAT.length - 1 - [...s6.querySelectorAll('.feat')].indexOf(f);
+    const t0 = at('s6', +f.dataset.b0), t1 = t0 + FD + .35;
+    const fo = i === FEAT.length - 1 ? 0 : seg(t, t1 - .35, .35);
+    f.style.opacity = Math.min(eo(seg(t, t0, .4)), 1 - fo);
+    const lt = seg(t, t0, FD + .35);
+    f.querySelector('.ph img').style.transform = `scale(${1.12 - .1 * lt}) translateX(${(i % 2 ? -1 : 1) * 12 * (lt - .5)}px)`;
+    const e = eo(seg(t, t0, .6));
+    f.querySelector('.ph').style.transform = `translateX(${(1 - e) * (V ? 0 : -80)}px) translateY(${(1 - e) * (V ? 60 : 0)}px) rotate(${(1 - e) * -2}deg)`;
+    const info = f.querySelector('.info'), e2 = eo(seg(t, t0 + .2, .6));
+    info.style.opacity = e2; info.style.transform = `translate${V ? 'Y' : 'X'}(${(1 - e2) * 60}px)`;
+  });
+  grid.style.transform = `translateY(${(1 - eo(seg(t, S('s7'), 7))) * 20}px)`;
+  $('fade').style.opacity = seg(t, DURATION - 1.2, 1.1);
+}
+window.render = render;
+window.DURATION = DURATION;
+window.ST = ST;
+
+if (!Q.has('render')) initPlayer(); else render(0);
+
+// ───────────── 預覽播放器（?render=1 時不載入） ─────────────
+function initPlayer() {
+  const FPS = 30, SIDE = 300, BAR = 150;
+  const css = document.createElement('style');
+  css.textContent = `
+  html,body{background:#15191d}
+  #pv{position:fixed;inset:0;font-family:"Noto Sans TC",sans-serif;color:#e8eef2;font-size:14px;user-select:none}
+  #pvStage{position:absolute;left:0;top:0;right:${SIDE}px;bottom:${BAR}px;overflow:hidden;background:#0d1013}
+  #pvSide{position:absolute;right:0;top:0;bottom:${BAR}px;width:${SIDE}px;background:#1b2126;overflow:auto;border-left:1px solid #2a3239}
+  #pvSide h3{font-size:12px;letter-spacing:.12em;color:#8b98a3;padding:14px 16px 6px;font-weight:700}
+  .pvSc{padding:9px 16px;cursor:pointer;border-left:3px solid transparent;display:flex;gap:10px;align-items:baseline}
+  .pvSc:hover{background:#232b31}
+  .pvSc.on{background:#23312d;border-left-color:#1FA48A}
+  .pvSc b{font-family:Poppins;font-size:12px;color:#8b98a3;width:22px;flex:none}
+  .pvSc span{flex:1}
+  .pvSc em{font-style:normal;color:#8b98a3;font-size:12px;font-family:Poppins}
+  #pvBar{position:absolute;left:0;right:0;bottom:0;height:${BAR}px;background:#1b2126;border-top:1px solid #2a3239;padding:10px 16px}
+  #pvTl{width:100%;height:58px;display:block;cursor:pointer}
+  #pvCtl{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  #pvCtl button{background:#2a3239;color:#e8eef2;border:0;border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer}
+  #pvCtl button.on{background:#1FA48A}
+  #pvCtl button:hover{filter:brightness(1.2)}
+  #pvRead{font-family:Poppins;font-variant-numeric:tabular-nums;margin-left:8px;color:#cfd8de}
+  #pvBeat{width:14px;height:14px;border-radius:50%;background:#333;margin-left:6px}
+  #pvHelp{margin-left:auto;color:#7d8a94;font-size:12px}
+  #stage{box-shadow:0 0 0 1px #333;color:var(--ink);font-size:16px}`;
+  document.head.appendChild(css);
+  const pv = document.createElement('div'); pv.id = 'pv';
+  pv.innerHTML = `<div id="pvStage"></div>
+    <div id="pvSide"><h3>場景（點擊跳轉）</h3><div id="pvList"></div></div>
+    <div id="pvBar"><canvas id="pvTl"></canvas>
+      <div id="pvCtl">
+        <button id="bPlay">▶ 播放</button>
+        <button id="bPrevS" title="上一場景 [">⏮</button>
+        <button id="bBackB" title="退一拍 Shift+←">−1拍</button>
+        <button id="bBackF" title="退一格 ←">−1格</button>
+        <button id="bFwdF" title="進一格 →">+1格</button>
+        <button id="bFwdB" title="進一拍 Shift+→">+1拍</button>
+        <button id="bNextS" title="下一場景 ]">⏭</button>
+        <button id="bLoop" title="L">🔁 循環此場景</button>
+        <button id="bClick" title="M">🥁 節拍器</button>
+        <button id="bSpeed">1×</button>
+        <button id="bMute">🔊</button>
+        <button id="bOri">${V ? '切換 16:9 橫式' : '切換 9:16 直式'}</button>
+        <span id="pvRead"></span><span id="pvBeat"></span>
+        <span id="pvHelp">空白鍵 播放/暫停 · ←→ 逐格 · Shift+←→ 逐拍 · [ ] 換場景 · L 循環 · M 節拍器</span>
+      </div></div>`;
+  document.body.appendChild(pv);
+  $('pvStage').appendChild(stage);
+
+  const scs = PROJECT.scenes;
+  $('pvList').innerHTML = scs.map((sc, i) =>
+    `<div class="pvSc" data-i="${i}"><b>${String(i + 1).padStart(2, '0')}</b><span>${sc.name}</span><em>${sc.beats}拍</em></div>`).join('');
+
+  let t = 0, playing = false, loop = false, click = false, speed = 1, lastBeat = -1;
+  const audio = new Audio(window.MUSIC_SRC || 'output/music.wav'); audio.preload = 'auto';
+  let AC = null;
+  const tick = accent => {
+    AC = AC || new AudioContext();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.frequency.value = accent ? 1760 : 1175; g.gain.setValueAtTime(.35, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, AC.currentTime + .06);
+    o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + .07);
+  };
+  const sceneAt = tt => { let k = 0; scs.forEach((sc, i) => { if (tt >= S(sc.id) - 1e-6) k = i; }); return k; };
+  const seek = (nt, fromAudio) => {
+    t = clamp(nt, 0, DURATION);
+    if (!fromAudio) { try { audio.currentTime = t; } catch (e) {} }
+  };
+  const fit = () => {
+    const box = $('pvStage'), bw = box.clientWidth, bh = box.clientHeight;
+    const s = Math.min(bw / W, bh / H) * .96;
+    stage.style.position = 'absolute'; stage.style.transformOrigin = '0 0';
+    stage.style.transform = `translate(${(bw - W * s) / 2}px,${(bh - H * s) / 2}px) scale(${s})`;
+    const c = $('pvTl'); c.width = c.clientWidth * devicePixelRatio; c.height = 58 * devicePixelRatio;
+  };
+  const PAL = ['#1FA48A','#2F8FD6','#D8327C','#F0892B','#8B8FE0','#3BB3A4','#E7A04B'];
+  const drawTl = () => {
+    const c = $('pvTl'), g = c.getContext('2d'), w = c.width, h = c.height, r = devicePixelRatio;
+    const X = tt => tt / DURATION * w;
+    g.clearRect(0, 0, w, h);
+    scs.forEach((sc, i) => {
+      const x0 = X(S(sc.id)), x1 = i < scs.length - 1 ? X(S(scs[i + 1].id)) : w;
+      g.fillStyle = PAL[i % PAL.length] + (i === sceneAt(t) ? 'ff' : '88');
+      g.fillRect(x0 + 1, 18 * r, x1 - x0 - 2, 22 * r);
+      g.fillStyle = '#fff'; g.font = `${11 * r}px "Noto Sans TC"`;
+      g.save(); g.beginPath(); g.rect(x0 + 1, 18 * r, x1 - x0 - 4, 22 * r); g.clip();
+      g.fillText(`${i + 1} ${sc.name.split('｜').pop()}`, x0 + 5 * r, 33 * r); g.restore();
+    });
+    const nb = Math.round((DURATION - PROJECT.tail) / BEAT);
+    for (let b = 0; b <= nb; b++) {
+      const x = X(B(b)); g.fillStyle = b % 4 === 0 ? '#9aa6ae' : '#4a555d';
+      g.fillRect(x, (b % 4 === 0 ? 4 : 9) * r, r, (b % 4 === 0 ? 12 : 7) * r);
+    }
+    g.fillStyle = '#9aa6ae'; g.font = `${10 * r}px Poppins`;
+    for (let s = 0; s <= DURATION; s += 10) g.fillText(s + 's', X(s) + 3 * r, 54 * r);
+    g.fillStyle = '#ff4d4d'; g.fillRect(X(t) - r, 0, 2 * r, h);
+  };
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${(s % 60).toFixed(2).padStart(5, '0')}`;
+  const update = () => {
+    render(t); drawTl();
+    const k = sceneAt(t), sc = scs[k], rel = t - S(sc.id);
+    const gb = t / BEAT, bar = Math.floor(gb / 4) + 1, bt = Math.floor(gb % 4) + 1;
+    $('pvRead').textContent = `${fmt(t)} / ${fmt(DURATION)} · 第 ${bar} 小節 第 ${bt} 拍 · 格 ${Math.round(t * FPS)} · 場景 ${k + 1}：+${(rel / BEAT).toFixed(2)} 拍`;
+    document.querySelectorAll('.pvSc').forEach((el, i) => el.classList.toggle('on', i === k));
+    $('bPlay').textContent = playing ? '❚❚ 暫停' : '▶ 播放';
+    const beatIdx = Math.floor(gb + 1e-6), ph = gb - beatIdx;
+    $('pvBeat').style.background = ph < .15 ? (beatIdx % 4 === 0 ? '#ff4d4d' : '#F5B82E') : '#333';
+    if (playing && click && beatIdx !== lastBeat) tick(beatIdx % 4 === 0);
+    lastBeat = beatIdx;
+  };
+  let prev = performance.now();
+  const frame = now => {
+    const dt = (now - prev) / 1000; prev = now;
+    if (playing) {
+      if (!audio.paused && !audio.muted && speed === 1 && audio.readyState >= 2) seek(audio.currentTime, true);
+      else seek(t + dt * speed, true);
+      if (loop) {
+        const k = sceneAt(t - 1e-3), sc = scs[k], end = k < scs.length - 1 ? S(scs[k + 1].id) : DURATION;
+        if (t >= end - 1e-3) { seek(S(sc.id)); }
+      } else if (t >= DURATION) { playing = false; audio.pause(); }
+    }
+    update(); requestAnimationFrame(frame);
+  };
+  const setPlay = p => {
+    playing = p;
+    if (p) { if (t >= DURATION - .01) seek(0); audio.currentTime = t; audio.playbackRate = speed; audio.play().catch(() => {}); }
+    else audio.pause();
+  };
+  const loopScene = k => { if (loop) { const sc = scs[k]; seek(S(sc.id)); } };
+  const goScene = d => { const k = clamp(sceneAt(t + 1e-3) + d, 0, scs.length - 1); seek(S(scs[k].id)); };
+  $('bPlay').onclick = () => setPlay(!playing);
+  $('bPrevS').onclick = () => goScene(t - S(scs[sceneAt(t)].id) > .3 ? 0 : -1);
+  $('bNextS').onclick = () => goScene(1);
+  $('bBackF').onclick = () => { setPlay(false); seek(Math.round(t * FPS - 1) / FPS); };
+  $('bFwdF').onclick = () => { setPlay(false); seek(Math.round(t * FPS + 1) / FPS); };
+  $('bBackB').onclick = () => { setPlay(false); seek(B(Math.ceil(t / BEAT - 1.001))); };
+  $('bFwdB').onclick = () => { setPlay(false); seek(B(Math.floor(t / BEAT + 1.001))); };
+  $('bLoop').onclick = () => { loop = !loop; $('bLoop').classList.toggle('on', loop); };
+  $('bClick').onclick = () => { click = !click; $('bClick').classList.toggle('on', click); };
+  $('bSpeed').onclick = () => { speed = speed === 1 ? .5 : speed === .5 ? .25 : 1; $('bSpeed').textContent = speed + '×'; audio.playbackRate = speed; };
+  $('bMute').onclick = () => { audio.muted = !audio.muted; $('bMute').textContent = audio.muted ? '🔇' : '🔊'; };
+  $('bOri').onclick = () => { const u = new URL(location.href); V ? u.searchParams.delete('v') : u.searchParams.set('v', '1'); u.searchParams.set('t', t.toFixed(3)); location.href = u; };
+  $('pvList').onclick = e => { const el = e.target.closest('.pvSc'); if (el) { seek(S(scs[+el.dataset.i].id)); } };
+  const tl = $('pvTl'); let drag = false;
+  const tlSeek = e => { const r = tl.getBoundingClientRect(); seek((e.clientX - r.left) / r.width * DURATION); };
+  tl.onpointerdown = e => { drag = true; tl.setPointerCapture(e.pointerId); tlSeek(e); };
+  tl.onpointermove = e => drag && tlSeek(e);
+  tl.onpointerup = () => drag = false;
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (k === ' ') { e.preventDefault(); setPlay(!playing); }
+    else if (k === 'ArrowLeft') (e.shiftKey ? $('bBackB') : $('bBackF')).click();
+    else if (k === 'ArrowRight') (e.shiftKey ? $('bFwdB') : $('bFwdF')).click();
+    else if (k === '[') $('bPrevS').click();
+    else if (k === ']') $('bNextS').click();
+    else if (k === 'l' || k === 'L') $('bLoop').click();
+    else if (k === 'm' || k === 'M') $('bClick').click();
+  });
+  addEventListener('resize', fit);
+  const startAt = +Q.get('t') || 0, startScene = Q.get('scene');
+  if (startScene) { const k = scs.findIndex(s => s.id === startScene || String(scs.indexOf(s) + 1) === startScene); if (k >= 0) { seek(S(scs[k].id)); loop = true; $('bLoop').classList.add('on'); } }
+  else seek(startAt);
+  document.fonts.ready.then(() => { fit(); requestAnimationFrame(frame); });
+  window.PV = { seek, get t() { return t; } };
+}
+</script>
+</body>
+</html>
