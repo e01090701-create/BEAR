@@ -48,18 +48,21 @@ def b64(path, mime):
 
 def bundle():
     ff = os.environ.get('FF', 'ffmpeg')
-    subprocess.run([ff, '-y', '-loglevel', 'error', '-i', 'output/music.wav', '-c:a', 'aac', '-b:a', '160k', 'output/music.m4a'], check=True)
+    srcs = {}
+    for style, sfx in (('energy', ''), ('warm', '_warm')):  # 兩種風格的配樂都內嵌
+        subprocess.run([ff, '-y', '-loglevel', 'error', '-i', f'output/music{sfx}.wav', '-c:a', 'aac', '-b:a', '160k', f'output/music{sfx}.m4a'], check=True)
+        srcs[style] = b64(f'output/music{sfx}.m4a', 'audio/mp4')
     html = open('promo.html', encoding='utf-8').read()
     css = open('fonts/fonts.css', encoding='utf-8').read()
     css = re.sub(r'url\(([^)]+\.woff2)\)', lambda m: f"url({b64('fonts/' + m.group(1), 'font/woff2')})", css)
     html = html.replace('<link rel="stylesheet" href="fonts/fonts.css">', f'<style>{css}</style>')
-    html = html.replace('<script src="scenes.js"></script>',
-                        '<script>' + open('scenes.js', encoding='utf-8').read() +
-                        f"\nwindow.MUSIC_SRC='{b64('output/music.m4a', 'audio/mp4')}';</script>")
+    for js in ('scenes.js', 'scenes_warm.js'):
+        html = html.replace(f'<script src="{js}"></script>', '<script>' + open(js, encoding='utf-8').read() + '</script>')
+    html = html.replace('<script>\n// 風格：', f'<script>\nwindow.MUSIC_SRCS={json.dumps(srcs)};\n// 風格：', 1)
     amap = {}
     for f in sorted(os.listdir('assets')):
         amap[f] = b64(f'assets/{f}', 'image/png' if f.endswith('.png') else 'image/jpeg')
-        html = html.replace(f'"assets/{f}"', f'"{amap[f]}"')
+        html = html.replace(f'"assets/{f}"', f'"{amap[f]}"').replace(f'url(assets/{f})', f'url({amap[f]})')
     html = html.replace('<script>\nconst Q', '<script>\nwindow.ASSETS=' + json.dumps(amap) + ';\nconst Q', 1)
     open('output/preview.html', 'w', encoding='utf-8').write(html)
     print(f'bundle: output/preview.html {os.path.getsize("output/preview.html") / 1e6:.1f} MB')

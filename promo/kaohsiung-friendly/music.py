@@ -7,14 +7,23 @@
   drop   四拍大鼓、拍手、開/閉鈸、側鏈壓縮的 supersaw 和弦、低音、pluck 主旋律
   break  只有 pad＋鋼琴琶音
   outro  前 12 拍同 drop，最後一個爆點後只留餘韻
-執行：python3 music.py   （需要 numpy、scipy、node）
+溫馨版（python3 music.py warm → 讀 scenes_warm.js，輸出 output/music_warm.wav）：
+  soft   鋼琴琶音＋弦樂鋪底
+  swell  加入溫暖低音、鋼琴主旋律、輕柔大鼓與沙鈴
+  break  只剩鋼琴
+  end    同 swell，最後一個高光點後長和弦收尾
+  hits   音樂盒琶音（不打重擊）
+執行：python3 music.py [energy|warm]   （需要 numpy、scipy、node）
 """
-import json, subprocess, wave
+import json, subprocess, sys, wave
 import numpy as np
 from scipy.signal import butter, sosfilt
 
+STYLE = sys.argv[1] if len(sys.argv) > 1 else 'energy'
+SUFFIX = '' if STYLE == 'energy' else '_' + STYLE
 proj = json.loads(subprocess.check_output(
-    ['node', '-e', "global.window={};require('./scenes.js');console.log(JSON.stringify(window.PROJECT))"]))
+    ['node', '-e', "global.window={};require('./scenes.js');require('./scenes_warm.js');"
+                   f"console.log(JSON.stringify(window.PROJECTS['{STYLE}']))"]))
 SR = 44100
 BEAT = 60 / proj['bpm']
 TOTAL_B = sum(s['beats'] for s in proj['scenes'])
@@ -28,8 +37,9 @@ bus = {k: np.zeros((N, 2)) for k in ('drums', 'music', 'fx')}
 kick_times = []
 gaps = []
 m2f = lambda m: 440 * 2 ** ((m - 69) / 12)
-CH = {'Am': [57, 60, 64, 69], 'F': [53, 57, 60, 65], 'C': [55, 60, 64, 67], 'G': [55, 59, 62, 67]}
-ROOT = {'Am': 45, 'F': 41, 'C': 48, 'G': 43}
+CH = {'Am': [57, 60, 64, 69], 'F': [53, 57, 60, 65], 'C': [55, 60, 64, 67], 'G': [55, 59, 62, 67],
+      'Em': [55, 59, 64, 67], 'Dm': [53, 57, 62, 65]}
+ROOT = {'Am': 45, 'F': 41, 'C': 48, 'G': 43, 'Em': 40, 'Dm': 38}
 LEAD = {'Am': [76, -1, 72, 76, 79, -1, 76, 74], 'F': [72, -1, 69, 72, 77, -1, 76, 72],
         'C': [72, -1, 67, 72, 76, -1, 74, 72], 'G': [71, -1, 67, 71, 74, -1, 79, 74]}
 
@@ -159,10 +169,87 @@ def pad(notes, t, dur, amp):
     put('music', s * np.minimum(1, tt / .5) * np.clip((dur - tt) / .5, 0, 1) * amp, t)
 
 
+# ── 溫馨版樂器 ──
+def piano(m, t, dur, amp, pan=0.0):  # 柔和鋼琴（略為走音的雙弦，聽起來較暖）
+    n = int(dur * SR); tt = np.arange(n) / SR; f = m2f(m)
+    s = sum(a * (np.sin(2 * np.pi * f * k * tt) + .6 * np.sin(2 * np.pi * f * k * 1.0015 * tt)) * np.exp(-tt * (1.2 + k * 1.1))
+            for k, a in [(1, 1), (2, .35), (3, .12), (4, .05)])
+    env = np.minimum(1, tt / .008) * np.clip((dur - tt) / .3, 0, 1)
+    put('music', lp(s * env, 3200) * amp, t, pan)
+
+def strings(notes, t, dur, amp):  # 弦樂鋪底：慢起音、低通
+    n = int((dur + .8) * SR); tt = np.arange(n) / SR; s = np.zeros((n, 2))
+    for m in notes:
+        for d, pan in [(-9, -.6), (0, 0), (9, .6)]:
+            v = saw(m2f(m) * 2 ** (d / 1200) * (1 + .002 * np.sin(2 * np.pi * 5 * tt[0])), n, rng.random())
+            s[:, 0] += v * (1 - pan); s[:, 1] += v * (1 + pan)
+    env = np.minimum(1, tt / .9) * np.clip((dur + .8 - tt) / .8, 0, 1)
+    s = np.stack([lp(s[:, 0], 1500), lp(s[:, 1], 1500)], 1) * env[:, None]
+    put('music', s * amp / len(notes), t)
+
+def softbass(root, t, dur, amp=1.0):
+    n = int(dur * SR); tt = np.arange(n) / SR; f = m2f(root)
+    s = (np.sin(2 * np.pi * f * tt) + .25 * np.sin(4 * np.pi * f * tt)) * np.minimum(1, tt / .04) * np.clip((dur - tt) / .2, 0, 1)
+    put('music', s * .42 * amp, t)
+
+def musicbox(notes, t, amp=1.0):  # 音樂盒琶音（鐘聲泛音）
+    for k, m in enumerate(notes):
+        tt = T(2.4); f = m2f(m)
+        s = sum(a * np.sin(2 * np.pi * f * r * tt) * np.exp(-tt * dcy) for r, a, dcy in [(1, 1, 2.2), (2.76, .35, 5), (5.4, .15, 9)])
+        put('fx', s * .16 * amp, t + k * .11, (k - 1.5) * .25)
+    EVENTS.append((t, 'musicbox'))
+
+def softkick(t, amp=1.0):
+    tt = T(.3); f = 45 + 60 * np.exp(-tt * 30)
+    put('drums', np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 10) * .42 * amp, t); EVENTS.append((t, 'softkick'))
+
+def shaker(t, amp=1.0, pan=.2):
+    n = int(.09 * SR); tt = np.arange(n) / SR
+    put('drums', bp(noise(n), 5000, 11000) * np.sin(np.pi * tt / .09) * .05 * amp, t, pan)
+
+MELW = {'C': [76, 74, 72, 67], 'Am': [72, 76, 74, 72], 'F': [72, 69, 77, 76], 'G': [74, 71, 79, 74],
+        'Em': [71, 74, 76, 79], 'Dm': [74, 72, 69, 77]}
+
+def warm_scene(sc, t0, nb):
+    mode = sc['mode']
+    for cb in range(0, nb, 4):
+        name = sc['chords'][(cb // 4) % len(sc['chords'])]; ct = t0 + cb * BEAT; cl = min(4, nb - cb)
+        notes = CH[name]; EVENTS.append((ct, f'chord:{name}'))
+        last = mode == 'end' and cb + 4 > 12
+        if last: continue
+        arp = [ROOT[name] + 12, notes[1], notes[2], notes[3], notes[2] + 12, notes[3], notes[2], notes[1]]
+        if mode in ('soft', 'swell', 'end'):
+            strings(notes, ct, cl * BEAT, .30 if mode == 'soft' else .42)
+            for k in range(cl * 2): piano(arp[k % 8], ct + k * BEAT / 2, 1.8, .11, .25 if k % 2 else -.25)
+        if mode in ('swell', 'end'):
+            softbass(ROOT[name], ct, cl * BEAT)
+            for k in range(cl):
+                bt = ct + k * BEAT
+                if k % 2 == 0: softkick(bt, .8)
+                shaker(bt + .5 * BEAT, 1, .25); shaker(bt, .5, -.25)
+                piano(MELW[name][k] + 0, bt, BEAT * 2.2, .19, .1)
+        if mode == 'break':
+            for k in range(cl * 2): piano(arp[k % 8] + 12, ct + k * BEAT / 2, 2.2, .13, .3 if k % 2 else -.3)
+            piano(ROOT[name] + 12, ct, cl * BEAT + 1, .22)
+            strings(notes, ct, cl * BEAT, .16)
+    for h in sc.get('hits', []):
+        ht = t0 + h * BEAT; name = sc['chords'][(int(h) // 4) % len(sc['chords'])]
+        musicbox([n + 24 for n in CH[name][1:]] + [CH[name][1] + 36], ht)
+        EVENTS.append((ht, 'impact'))
+        if mode == 'end' and h == 12:  # 收尾長和弦
+            n = CH[sc['chords'][-1]]; dur = (nb - h) * BEAT + proj['tail']
+            strings(n + [n[0] + 12], ht, dur - .6, .5)
+            for m in [ROOT[sc['chords'][-1]] + 12, n[0], n[1], n[2], n[3], n[1] + 12]:
+                piano(m, ht, dur, .12)
+            softbass(ROOT[sc['chords'][-1]], ht, dur - .5)
+
+
 # ── 依場景排程 ──
 b0 = 0
 for sc in proj['scenes']:
     t0 = b0 * BEAT; nb = sc['beats']; mode = sc['mode']
+    if STYLE == 'warm':
+        warm_scene(sc, t0, nb); b0 += nb; continue
     for cb in range(0, nb, 4):
         name = sc['chords'][(cb // 4) % len(sc['chords'])]; ct = t0 + cb * BEAT; cl = min(4, nb - cb)
         notes = CH[name]; EVENTS.append((ct, f'chord:{name}'))
@@ -225,17 +312,21 @@ music = bus['music'] * duck[:, None]
 # 殘響（多重回音，只加在音樂與音效）
 wet = music * .0 + bus['fx'] * .5 + music * .5
 rv = np.zeros_like(wet)
-for d, g in [(.043, .30), (.071, .26), (.113, .22), (.167, .17), (.241, .12), (.337, .08)]:
+TAPS = [(.043, .30), (.071, .26), (.113, .22), (.167, .17), (.241, .12), (.337, .08)]
+if STYLE == 'warm':  # 較長、較柔的殘響
+    TAPS = [(.061, .34), (.097, .30), (.149, .27), (.223, .23), (.311, .19), (.433, .15), (.587, .11), (.79, .07)]
+for d, g in TAPS:
     k = int(d * SR); rv[k:, 0] += wet[:-k, 1] * g; rv[k:, 1] += wet[:-k, 0] * g
-mix = bus['drums'] + music + bus['fx'] + rv * .6
+if STYLE == 'warm': rv = np.stack([lp(rv[:, 0], 4000), lp(rv[:, 1], 4000)], 1)
+mix = bus['drums'] + music + bus['fx'] + rv * (.9 if STYLE == 'warm' else .6)
 for a, b in gaps:  # 靜音停頓
     i, j = int(a * SR), int(b * SR)
     r = int(.004 * SR); mix[i:i + r] *= np.linspace(1, 0, r)[:, None]; mix[i + r:j] = 0
 mix *= np.clip((D - tt) / 1.2, 0, 1)[:, None]
 mix = np.tanh(mix / np.percentile(np.abs(mix), 99.9) * 1.1)
 mix = mix / np.abs(mix).max() * .93
-with wave.open('output/music.wav', 'wb') as w:
+with wave.open(f'output/music{SUFFIX}.wav', 'wb') as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes((mix * 32767).astype('<i2').tobytes())
-json.dump(sorted(EVENTS), open('output/music_events.json', 'w'))
-print(f'music: {D:.2f}s, {TOTAL_B} beats @ {proj["bpm"]} bpm')
+json.dump(sorted(EVENTS), open(f'output/music{SUFFIX}_events.json', 'w'))
+print(f'music{SUFFIX}: {D:.2f}s, {TOTAL_B} beats @ {proj["bpm"]} bpm')

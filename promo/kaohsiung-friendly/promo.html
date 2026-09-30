@@ -5,6 +5,12 @@
 <title>友善營業場所宣傳片</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <script src="scenes.js"></script>
+<script src="scenes_warm.js"></script>
+<script>
+// 風格：?style=warm → 溫馨版；預設卡點版
+window.STYLE = new URLSearchParams(location.search).get('style') === 'warm' ? 'warm' : 'energy';
+window.PROJECT = PROJECTS[STYLE];
+</script>
 <style>
 :root{
   --navy:#0D1F2A; --navy2:#12303F; --teal:#1FA48A; --teal2:#0B6E5E; --mint:#2EC4A9; --pink:#E0357F;
@@ -38,6 +44,42 @@ body{font-family:"Noto Sans TC",sans-serif;color:var(--ink);-webkit-font-smoothi
 #grain{position:absolute;inset:-64px;background:url(assets/grain.png);mix-blend-mode:overlay;opacity:.13;pointer-events:none}
 #vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.28));pointer-events:none}
 #endfade{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#glow{position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:radial-gradient(ellipse at 50% 45%,rgba(255,236,200,.95),rgba(255,210,160,.35) 45%,transparent 75%)}
+#leak{position:absolute;inset:-20%;pointer-events:none;mix-blend-mode:screen;opacity:0;
+  background:radial-gradient(40% 35% at 20% 25%,rgba(255,170,90,.55),transparent 70%),radial-gradient(35% 30% at 85% 75%,rgba(255,120,150,.45),transparent 70%)}
+
+/* ═════ 溫馨版（.warm）：暖色、手寫標題、柔光，不震動 ═════ */
+.warm #grain{opacity:.06}
+.warm #leak{opacity:.55}
+.warm .k{font-family:"LXGW WenKai TC",serif;font-weight:700;letter-spacing:.04em}
+.warm .outline{-webkit-text-stroke-color:rgba(200,110,60,.16)}
+.warm #hook .bg{background:radial-gradient(1000px 700px at 50% 35%,#5A3B3A,#2A1E22 75%)}
+.warm #logo .bg{background:radial-gradient(1300px 900px at 50% 45%,#FFF6E8,#FAD2AE 80%)}
+.warm .rays{background:repeating-conic-gradient(from 0deg,rgba(255,180,110,.20) 0 7deg,transparent 7deg 20deg)}
+.warm #logo .txt{color:var(--ink)}
+.warm #logo .t2{text-shadow:none}
+.warm #logo .t3{color:var(--teal2)}
+.warm #logo .t4{color:var(--orange)}
+.warm .ring{border-color:rgba(240,137,43,.8)}
+.warm #ramp .bg,.warm #people .bg,.warm #std .bg,.warm #wall .bg,.warm #ben .bg{background:radial-gradient(1400px 1000px at 30% 20%,#FFF9F0,#FDEBD8 80%)}
+.warm #stat .bg{background:radial-gradient(1100px 800px at 50% 50%,#FFF4E4,#F9D4B4 85%)}
+.warm #statNum{background-image:linear-gradient(135deg,#F0892B,#E0357F)}
+.warm #stat .suf,.warm #stat .pre,.warm #stat .post{color:var(--ink)}
+.warm #stat .inc{color:var(--teal2)}
+.warm .statRing{border-color:rgba(200,110,60,.25)}
+.warm .cp{color:var(--ink)}
+.warm .cp .ic{background:rgba(255,255,255,.7)}
+.warm .catTop{color:var(--ink)}
+.warm .ft .tint{opacity:.38}
+.warm .ft .nm{text-shadow:0 4px 24px rgba(60,30,20,.45)}
+.warm #throw{background:radial-gradient(1400px 1000px at 50% 40%,#FFF3E4,#F6D3B6 85%)}
+.warm #biz .bg{background:radial-gradient(1100px 800px at 50% 40%,#5A3B3A,#2A1E22 80%)}
+.warm .beam{background:linear-gradient(90deg,transparent,rgba(255,190,120,.16),transparent)}
+.warm #steps .bg{background:linear-gradient(135deg,#F4A06B,#E0708C)}
+.warm #outro .bg{background:radial-gradient(1400px 1000px at 50% 40%,#F7B07A,#E0708C 85%)}
+.warm #break .bg{background:radial-gradient(1200px 900px at 30% 30%,#FFE9EF,#FFF4E6 60%)}
+.warm .conf i{filter:blur(1.5px)}
 
 /* ── HOOK ── */
 #hook .bg{background:radial-gradient(900px 600px at 50% 40%,#1A3A4A,var(--navy) 70%)}
@@ -443,6 +485,8 @@ svg.scn{position:absolute;left:50%;overflow:visible}
  <div id="flash"></div>
  <div id="grain"></div>
  <div id="vig"></div>
+ <div id="leak"></div>
+ <div id="glow"></div>
  <div id="endfade"></div>
 </div>
 
@@ -451,6 +495,8 @@ const Q = new URLSearchParams(location.search);
 const A = f => (window.ASSETS && ASSETS[f]) || 'assets/' + f; // 素材路徑（打包版改用內嵌）
 const V = Q.get('v') === '1';
 document.body.classList.add(V ? 'V' : 'H');
+const WARM = STYLE === 'warm';
+if (WARM) document.body.classList.add('warm');
 document.querySelectorAll(V ? '.hbr' : '.vbr').forEach(b => b.remove());
 const W = V ? 1080 : 1920, H = V ? 1920 : 1080;
 const stage = document.getElementById('stage');
@@ -504,15 +550,16 @@ const STD = [
   ['無障礙廁所','wc',0],['桌子高度可容膝','table',0],['通道無阻礙','path',0],['地面整潔乾淨','clean',0],['出入口平順<br>無高低差','door',0],
   ['友善服務鈴','bell',1],['導盲犬可進入','dog',1],['電動輪椅代步車<br>友善充電座','bolt',1],['易讀訂購(菜)單','book',1],['個別化服務<br>免下車服務','car',1],
 ];
-const STDC = [['#FFC93C', '#B07A00', '友善環境'], ['#2EC4A9', '#0B6E5E', '友善措施']];
+const STDC = WARM ? [['#FFE3A3', '#B07A00', '友善環境'], ['#BDEBDF', '#0B6E5E', '友善措施']]
+                  : [['#FFC93C', '#B07A00', '友善環境'], ['#2EC4A9', '#0B6E5E', '友善措施']];
 
 // ── 動態產生的場景內容 ──
 // CATS：每 2 拍一個全螢幕色塊
-[['餐飲','food','#2F8FD6'],['診所','clinic','#F0892B'],['藥局','pill','#1FA48A'],['一般商店','shop','#7B6FE0']].forEach(([w, i, c], k) => {
+[['餐飲','food','#2F8FD6','#D3E6F8'],['診所','clinic','#F0892B','#FCE3CB'],['藥局','pill','#1FA48A','#CFEFE6'],['一般商店','shop','#7B6FE0','#E3DEF9']].forEach(([w, i, c, pc], k) => {
   const d = document.createElement('div');
-  d.className = 'cp catp'; d.dataset.b = k * 2; d.style.background = c;
-  d.innerHTML = `<div class="num outline" style="-webkit-text-stroke-color:rgba(255,255,255,.25)">0${k + 1}</div>
-    <div class="ic a" data-a="${k * 2} .25 stamp">${ic(ICON[i], '#fff', 4)}</div><div class="w k rgb a" data-a="${k * 2 + .25} .22 slam">${w}</div>`;
+  d.className = 'cp catp'; d.dataset.b = k * 2; d.style.background = WARM ? pc : c;
+  d.innerHTML = `<div class="num outline" style="-webkit-text-stroke-color:${WARM ? c + '44' : 'rgba(255,255,255,.25)'}">0${k + 1}</div>
+    <div class="ic a" data-a="${k * 2} .25 stamp">${ic(ICON[i], WARM ? c : '#fff', 4)}</div><div class="w k rgb a" data-a="${k * 2 + .25} .22 slam">${w}</div>`;
   $('catPanels').appendChild(d);
 });
 // STD：一拍一個
@@ -596,7 +643,14 @@ function mkConf(id, n, power, cols = CONF_COL) {
     Object.assign(el.style, {width: s + 'px', height: (shape === 1 ? s * .45 : s) + 'px', background: cols[k % cols.length],
       borderRadius: shape === 0 ? '50%' : '3px', clipPath: shape === 2 ? 'polygon(50% 0,100% 100%,0 100%)' : ''});
     const ang = rnd() * Math.PI * 2, sp = power * (.35 + rnd() * .65);
-    parts.push({el, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - power * .35, vr: (rnd() - .5) * 900});
+    const pt = {el, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - power * .35, vr: (rnd() - .5) * 900};
+    if (WARM) {  // 溫馨版：光點與愛心，從四周緩緩飄升
+      const warmCols = ['#FFD39A', '#FFB4C6', '#FFF1C9', '#F9A86B', '#FFFFFF', '#FF8FAB'];
+      Object.assign(el.style, {clipPath: '', borderRadius: '50%', height: s + 'px', background: warmCols[k % 6], opacity: 0});
+      if (k % 4 === 0) Object.assign(el.style, {background: 'none', color: '#FF7FA0', fontSize: s * 1.5 + 'px', lineHeight: 1, width: 'auto', height: 'auto', fontStyle: 'normal'}), el.textContent = '♥';
+      Object.assign(pt, {x0: (rnd() - .5) * W * .8, y0: (rnd() - .2) * H * .5, up: 50 + rnd() * 90, ph: rnd() * 6.28, life: 3.2 + rnd() * 1.6});
+    }
+    parts.push(pt);
     box.appendChild(el);
   }
   return parts;
@@ -626,8 +680,12 @@ const seg = (t, a, d) => clamp((t - a) / d);
 const lerp = (a, b, p) => a + (b - a) * p;
 
 const scenes = [...document.querySelectorAll('.scene')];
+// 溫馨版：把強烈的動畫換成柔和版本（同一個時間點，不同表情）
+const WARM_MAP = {slam: 'soft', stamp: 'bloom', chars: 'softchars', left: 'softleft', pop: 'bloom', cut: 'fade', blur: 'blur'};
+const UFADE = WARM ? .2 : .05;
 const anims = [...document.querySelectorAll('[data-a]')].map(el => {
-  const [s, d, type] = el.dataset.a.split(' ');
+  let [s, d, type] = el.dataset.a.split(' ');
+  if (WARM && WARM_MAP[type]) { type = WARM_MAP[type]; d = Math.max(+d, type === 'fade' ? .4 : .85); }
   const id = el.closest('.scene').id;
   return {el, s: at(id, +s), d: +d, type, u: el.dataset.u ? at(id, +el.dataset.u) : null, chars: [...el.querySelectorAll('.ch')], base: el.style.transform || ''};
 });
@@ -652,11 +710,20 @@ function applyAnim(A, t) {
         c.style.opacity = clamp(q * 5); c.style.transform = `scale(${lerp(2.2, 1, qq)})`; c.style.filter = q < 1 ? `blur(${(1 - qq) * 10}px)` : ''; });
       o = t >= A.s ? 1 : 0; break;
     }
+    // ── 溫馨版 ──
+    case 'soft': o = e; tr = `translateY(${(1 - e) * 36}px)`; f = p < 1 ? `blur(${(1 - e) * 10}px)` : ''; break;
+    case 'bloom': o = e; tr = `scale(${lerp(1.14, 1, e)})`; break;
+    case 'softleft': o = e; tr = `translateX(${(1 - e) * -60}px)`; break;
+    case 'softchars': {
+      A.chars.forEach((c, i) => { const q = eo(seg(t, A.s + i * .09, .8));
+        c.style.opacity = q; c.style.transform = `translateY(${(1 - q) * 28}px)`; c.style.filter = q < 1 ? `blur(${(1 - q) * 8}px)` : ''; });
+      o = t >= A.s ? 1 : 0; break;
+    }
   }
-  if (A.u !== null) o *= 1 - seg(t, A.u, .05);
+  if (A.u !== null) o *= 1 - seg(t, A.u, UFADE);
   el.style.opacity = o;
-  if (A.type !== 'wipe' && A.type !== 'fade' && A.type !== 'cut' && A.type !== 'chars') el.style.transform = A.base + ' ' + tr;
-  if (f !== undefined && (A.type === 'slam' || A.type === 'blur')) el.style.filter = f;
+  if (!['wipe', 'fade', 'cut', 'chars', 'softchars'].includes(A.type)) el.style.transform = A.base + ' ' + tr;
+  if (A.type === 'slam' || A.type === 'blur' || A.type === 'soft') el.style.filter = f;
 }
 
 const lastBefore = (arr, t) => { let r = -1e9; for (const x of arr) if (x <= t && x > r) r = x; return r; };
@@ -675,8 +742,9 @@ function render(t) {
     let o = 0, tr = '', f = '';
     if (t >= a && t < b) o = 1;
     const next = SCN[i + 1];
-    if (next && next.tr === 'fade' && t >= b - .3 && t < b + .3) o = 1 - seg(t, b - .3, .6);
-    if (SCN[i].tr === 'fade' && t >= a - .3 && t < a + .3) o = seg(t, a - .3, .6);
+    const xf = WARM ? .5 : .3;  // 溶接半長
+    if (next && next.tr === 'fade' && t >= b - xf && t < b + xf) o = 1 - seg(t, b - xf, 2 * xf);
+    if (SCN[i].tr === 'fade' && t >= a - xf && t < a + xf) o = seg(t, a - xf, 2 * xf);
     if (next && next.tr === 'zoom' && t >= b - .2 && t < b) { const p = seg(t, b - .2, .2); tr = `scale(${1 + p * .8})`; f = `blur(${p * 16}px)`; }
     if (SCN[i].tr === 'zoom' && t >= a && t < a + .3) { const p = eexp(seg(t, a, .3)); tr = `scale(${lerp(.75, 1, p)})`; }
     el.style.visibility = o > 0 ? 'visible' : 'hidden'; el.style.opacity = o; el.style.transform = tr; el.style.filter = f;
@@ -688,11 +756,20 @@ function render(t) {
   const bIdx = Math.floor(t / BEAT + 1e-6), bt = bIdx * BEAT;
   const punchOn = PUNCH_MODES.has(sc.mode) || (sc.mode === 'outro' && t < at('outro', 12)) || (sc.id === 'hook' && t >= at('hook', 8) && t < at('hook', 12));
   const pe = punchOn ? Math.exp(-(t - bt) / .11) : 0;
-  const sh = he * 22;
-  $('cam').style.transform = `translate(${Math.sin(t * 93) * sh}px,${Math.cos(t * 71) * sh}px) scale(${1 + pe * .018 + he * .05})`;
-  stage.style.setProperty('--rgb', (he * 14 + pe * 3).toFixed(2) + 'px');
-  const trFlash = sc.tr === 'flash' ? Math.exp(-(t - S(sc.id)) / .12) * (t - S(sc.id) < .6 ? 1 : 0) : 0;
-  $('flash').style.opacity = Math.max(he * .85, trFlash * .9);
+  if (WARM) {  // 溫馨版：不震動、不閃白；高光點＝柔光暈，鏡頭緩慢呼吸
+    const ge = t - h < 3 ? Math.exp(-(t - h) / .9) * Math.min(1, (t - h) / .25) : 0;
+    $('cam').style.transform = `scale(${1.01 + Math.sin(t * .35) * .01})`;
+    stage.style.setProperty('--rgb', '0px');
+    $('flash').style.opacity = 0;
+    $('glow').style.opacity = ge * .7;
+    $('leak').style.transform = `translate(${Math.sin(t * .23) * 6}%,${Math.cos(t * .17) * 5}%) rotate(${Math.sin(t * .1) * 8}deg)`;
+  } else {
+    const sh = he * 22;
+    $('cam').style.transform = `translate(${Math.sin(t * 93) * sh}px,${Math.cos(t * 71) * sh}px) scale(${1 + pe * .018 + he * .05})`;
+    stage.style.setProperty('--rgb', (he * 14 + pe * 3).toFixed(2) + 'px');
+    const trFlash = sc.tr === 'flash' ? Math.exp(-(t - S(sc.id)) / .12) * (t - S(sc.id) < .6 ? 1 : 0) : 0;
+    $('flash').style.opacity = Math.max(he * .85, trFlash * .9);
+  }
   // 彩色斜切轉場
   let wp = -1;
   if (sc.tr === 'wipe' && t - S(sc.id) < .25) wp = .5 + seg(t, S(sc.id), .25) * .5;
@@ -747,7 +824,7 @@ function render(t) {
     const fz = V ? 1.9 : 2.1;
     const shots = [[0, wide], [2, {z: fz, fx: .13, fy: .62}], [5, {z: fz, fx: .385, fy: .55}], [8, {z: fz, fx: .635, fy: .6}], [11, {z: fz, fx: .87, fy: .5}], [14, wide]];
     let cur = shots[0][1], prev = shots[0][1], p = 1;
-    for (let i = 1; i < shots.length; i++) if (t >= at('people', shots[i][0])) { prev = shots[i - 1][1]; cur = shots[i][1]; p = eexp(seg(t, at('people', shots[i][0]), .35)); }
+    for (let i = 1; i < shots.length; i++) if (t >= at('people', shots[i][0])) { prev = shots[i - 1][1]; cur = shots[i][1]; p = WARM ? eio(seg(t, at('people', shots[i][0]), 1.3)) : eexp(seg(t, at('people', shots[i][0]), .35)); }
     const z = lerp(prev.z, cur.z, p), fx = lerp(prev.fx, cur.fx, p), fy = lerp(prev.fy, cur.fy, p);
     const drift = 1 + (t - S('people')) * .004;
     const zz = z * drift;
@@ -756,30 +833,31 @@ function render(t) {
   { const sp = seg(t, at('stat', 0), B(4));
     $('statNum').textContent = Math.round(eo(sp) * 285);
     const hp = seg(t, at('stat', 4), .35);
-    $('statBox').style.transform = `scale(${t >= at('stat', 4) ? lerp(1.3, 1, eexp(hp)) : .9 + .1 * sp})`;
+    $('statBox').style.transform = `scale(${t >= at('stat', 4) ? lerp(WARM ? 1.08 : 1.3, 1, WARM ? eo(seg(t, at('stat', 4), .8)) : eexp(hp)) : .9 + .1 * sp})`;
     $('sr1').style.transform = `rotate(${t * 30}deg) scale(${1 + pe * .04})`; $('sr2').style.transform = `rotate(${-t * 18}deg)`; }
   // CATS：斜切色塊
   document.querySelectorAll('.catp').forEach(d => {
     const s0 = at('cats', +d.dataset.b), p = eexp(seg(t, s0 - .12, .3));
     const k = +d.dataset.b / 2, fromLeft = k % 2 === 0;
-    if (t < s0 - .12) { d.style.visibility = 'hidden'; return; }
+    if (t < s0 - (WARM ? .35 : .12)) { d.style.visibility = 'hidden'; return; }
     d.style.visibility = 'visible';
+    if (WARM) { d.style.clipPath = ''; d.style.opacity = eo(seg(t, s0 - .35, .7)); return; }
     const c = lerp(-40, 140, p);
     d.style.clipPath = fromLeft ? `polygon(0 0,${c}% 0,${c - 30}% 100%,0 100%)` : `polygon(100% 0,${100 - c + 30}% 0,${100 - c}% 100%,100% 100%)`;
   });
   // STORES：特寫推近＋照片連甩
   document.querySelectorAll('.ft').forEach((f, i) => {
-    const s0 = at('stores', +f.dataset.b), p = seg(t, s0, B(3)), e = eexp(seg(t, s0, .3));
-    f.querySelector('.ph').style.transform = `translateX(${(1 - e) * (V ? 0 : 400)}px) translateY(${(1 - e) * (V ? 300 : 0)}px) rotate(${lerp(i % 2 ? 8 : -8, i % 2 ? 1.5 : -1.5, e)}deg)`;
+    const s0 = at('stores', +f.dataset.b), p = seg(t, s0, B(3)), e = WARM ? eo(seg(t, s0 - .3, 1.1)) : eexp(seg(t, s0, .3)), mv = WARM ? .25 : 1;
+    f.querySelector('.ph').style.transform = `translateX(${(1 - e) * (V ? 0 : 400) * mv}px) translateY(${(1 - e) * (V ? 300 : 0) * mv}px) rotate(${lerp((i % 2 ? 8 : -8) * mv, i % 2 ? 1.5 : -1.5, e)}deg)`;
     f.querySelector('.ph img').style.transform = `scale(${1.18 - .12 * p})`;
     f.querySelector('.bgp').style.transform = `scale(${1.1 + .1 * p})`;
   });
   document.querySelectorAll('.pol').forEach(pl => {
-    const s0 = at('stores', +pl.dataset.b), p = seg(t, s0, .2);
+    const s0 = at('stores', +pl.dataset.b), p = seg(t, s0, WARM ? .9 : .2);
     if (t < s0) { pl.style.opacity = 0; return; }
-    const q = eexp(p);
-    pl.style.opacity = 1;
-    pl.style.transform = `translate(-50%,-50%) translate(${pl._x}px,${pl._y}px) rotate(${pl._r + (1 - q) * 30}deg) scale(${lerp(1.9, V ? 1 : .95, q)})`;
+    const q = WARM ? eo(p) : eexp(p);
+    pl.style.opacity = WARM ? q : 1;  // 溫馨版：像照片輕輕落在桌上
+    pl.style.transform = `translate(-50%,-50%) translate(${pl._x}px,${pl._y + (WARM ? (1 - q) * -60 : 0)}px) rotate(${pl._r + (1 - q) * (WARM ? 8 : 30)}deg) scale(${lerp(WARM ? 1.12 : 1.9, V ? 1 : .95, q)})`;
   });
   // BIZ：光束
   $('bm1').style.left = ((t * 700) % (W + 600) - 300) + 'px';
@@ -789,12 +867,18 @@ function render(t) {
     $('stepLine').style.transform = V ? `scaleY(${lp})` : `scaleX(${lp})`; }
   // BEN：金額計數
   $('benAmt').textContent = (Math.round(eo(seg(t, at('ben', 3), B(1))) * 50) * 100).toLocaleString('en-US');
-  $('benBig').querySelector('.amt').style.transform = t >= at('ben', 4) ? `scale(${lerp(1.35, 1, eexp(seg(t, at('ben', 4), .35)))})` : '';
+  $('benBig').querySelector('.amt').style.transform = t >= at('ben', 4) ? `scale(${WARM ? lerp(1.08, 1, eo(seg(t, at('ben', 4), .8))) : lerp(1.35, 1, eexp(seg(t, at('ben', 4), .35)))})` : '';
   $('outRays').style.transform = `rotate(${-t * 12}deg)`;
   // 彩帶
   Object.values(CONF).forEach(([parts, t0f]) => {
     const dt = t - t0f();
     parts.forEach(pt => {
+      if (WARM) {  // 光點、愛心緩緩飄升
+        if (dt < 0 || dt > pt.life) { pt.el.style.opacity = 0; return; }
+        pt.el.style.opacity = Math.sin(Math.PI * dt / pt.life) * .85;
+        pt.el.style.transform = `translate(${pt.x0 + Math.sin(dt * 1.4 + pt.ph) * 26}px,${pt.y0 - pt.up * dt}px)`;
+        return;
+      }
       if (dt < 0 || dt > 3.2) { pt.el.style.opacity = 0; return; }
       const x = pt.vx * dt * Math.exp(-dt * .9), y = pt.vy * dt * Math.exp(-dt * .9) + 900 * dt * dt * .5;
       pt.el.style.opacity = clamp(3.2 - dt);
@@ -851,6 +935,7 @@ function initPlayer() {
         <button id="bSpeed">1×</button>
         <button id="bMute">🔊</button>
         <button id="bOri">${V ? '切換 16:9 橫式' : '切換 9:16 直式'}</button>
+        <button id="bStyle" class="on">${WARM ? '溫馨版 → 切換卡點版' : '卡點版 → 切換溫馨版'}</button>
         <span id="pvRead"></span><span id="pvBeat"></span>
         <span id="pvHelp">空白鍵 播放/暫停 · ←→ 逐格 · Shift+←→ 逐拍 · [ ] 換場景 · L 循環 · M 節拍器</span>
       </div></div>`;
@@ -862,7 +947,7 @@ function initPlayer() {
     `<div class="pvSc" data-i="${i}"><b>${String(i + 1).padStart(2, '0')}</b><span>${sc.name}</span><em>${sc.beats}拍</em></div>`).join('');
 
   let t = 0, playing = false, loop = false, click = false, speed = 1, lastBeat = -1;
-  const audio = new Audio(window.MUSIC_SRC || 'output/music.wav'); audio.preload = 'auto';
+  const audio = new Audio((window.MUSIC_SRCS && MUSIC_SRCS[STYLE]) || (WARM ? 'output/music_warm.wav' : 'output/music.wav')); audio.preload = 'auto';
   let AC = null;
   const tick = accent => {
     AC = AC || new AudioContext();
@@ -949,6 +1034,7 @@ function initPlayer() {
   $('bClick').onclick = () => { click = !click; $('bClick').classList.toggle('on', click); };
   $('bSpeed').onclick = () => { speed = speed === 1 ? .5 : speed === .5 ? .25 : 1; $('bSpeed').textContent = speed + '×'; audio.playbackRate = speed; };
   $('bMute').onclick = () => { audio.muted = !audio.muted; $('bMute').textContent = audio.muted ? '🔇' : '🔊'; };
+  $('bStyle').onclick = () => { const u = new URL(location.href); WARM ? u.searchParams.delete('style') : u.searchParams.set('style', 'warm'); u.searchParams.delete('t'); location.href = u; };
   $('bOri').onclick = () => { const u = new URL(location.href); V ? u.searchParams.delete('v') : u.searchParams.set('v', '1'); u.searchParams.set('t', t.toFixed(3)); location.href = u; };
   $('pvList').onclick = e => { const el = e.target.closest('.pvSc'); if (el) { seek(S(scs[+el.dataset.i].id)); } };
   const tl = $('pvTl'); let drag = false;

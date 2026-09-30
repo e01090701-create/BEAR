@@ -1,4 +1,10 @@
-# 高雄市友善營業場所｜宣傳片工程檔（124 BPM 卡點版）
+# 高雄市友善營業場所｜宣傳片工程檔
+
+兩種風格共用同一套畫面與素材：
+- **卡點版**（預設）：124 BPM 電子流行，約 77 秒，時間軸 `scenes.js`
+- **溫馨版**（`promo.html?style=warm`）：90 BPM 鋼琴＋弦樂，約 100 秒，時間軸 `scenes_warm.js`；暖色調、手寫標題、柔光暈與飄升光點、全程溶接，不震動不閃白
+
+## 卡點版
 
 一份時間軸（`scenes.js`）同時驅動畫面與配樂：場景切點、文字重擊、爆點（閃白＋震動＋RGB 殘影）、轉場音效都寫在同一個地方，改節奏或場景長度時，畫面和音樂一起跟著變，不會跑拍。
 
@@ -47,9 +53,12 @@
 ```bash
 pip install numpy imageio-ffmpeg
 export FF=$(python3 -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())")
-python3 music.py                        # 產生配樂
+python3 music.py                        # 卡點版配樂 → output/music.wav
+python3 music.py warm                   # 溫馨版配樂 → output/music_warm.wav
 python3 build_preview.py bundle         # 單檔預覽 output/preview.html
 node render.js h output/friendly_16x9.mp4   # 橫式 1920×1080
 node render.js v output/friendly_9x16.mp4   # 直式 1080×1920（Reels／Shorts／限動）
+node render.js hw output/friendly_warm_16x9.mp4   # 溫馨版橫式
+node render.js vw output/friendly_warm_9x16.mp4   # 溫馨版直式
 ```
 需要 Node.js + Playwright（Chromium）。

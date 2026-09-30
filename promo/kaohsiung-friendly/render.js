@@ -4,11 +4,11 @@ const path = require('path');
 // 用法：node render.js h|v <輸出.mp4>   或   node render.js h|v <前綴> 3.5,10,20（輸出指定秒數的靜態截圖）
 const [,, mode, out, stills] = process.argv;
 (async () => {
-  const V = mode === 'v';
+  const V = mode[0] === 'v', WARM = mode.endsWith('w');  // h｜v｜hw｜vw（w＝溫馨版）
   const [W, H] = V ? [1080, 1920] : [1920, 1080];
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: W, height: H } });
-  await p.goto('file://' + path.resolve(__dirname, 'promo.html') + '?render=1' + (V ? '&v=1' : ''));
+  await p.goto('file://' + path.resolve(__dirname, 'promo.html') + '?render=1' + (V ? '&v=1' : '') + (WARM ? '&style=warm' : ''));
   await p.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(i => i.decode().catch(()=>{}))); });
   if (stills) {
     const st = await p.evaluate(() => ST); console.log(JSON.stringify(st));
@@ -24,7 +24,7 @@ const [,, mode, out, stills] = process.argv;
   }
   ff.stdin.end(); await new Promise(r => ff.on('close', r)); await b.close();
   // 合成配樂（output/music.wav，由 music.py 產生）
-  const mux = spawn(process.env.FF, ['-y','-loglevel','error','-i',out + '.video.mp4','-i',path.join(__dirname,'output/music.wav'),'-c:v','copy','-c:a','aac','-b:a','192k','-shortest','-movflags','+faststart',out], { stdio: 'inherit' });
+  const mux = spawn(process.env.FF, ['-y','-loglevel','error','-i',out + '.video.mp4','-i',path.join(__dirname, WARM ? 'output/music_warm.wav' : 'output/music.wav'),'-c:v','copy','-c:a','aac','-b:a','192k','-shortest','-movflags','+faststart',out], { stdio: 'inherit' });
   await new Promise(r => mux.on('close', r));
   require('fs').unlinkSync(out + '.video.mp4');
 })();
