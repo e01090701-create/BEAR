@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>友善營業場所宣傳片</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="scenes.js"></script>
+<script src="scenes_warm.js"></script>
+<script>
+// 風格：?style=warm → 溫馨版；預設卡點版
+window.STYLE = new URLSearchParams(location.search).get('style') === 'warm' ? 'warm' : 'energy';
+window.PROJECT = PROJECTS[STYLE];
+</script>
+<style>
+:root{
+  --navy:#0D1F2A; --navy2:#12303F; --teal:#1FA48A; --teal2:#0B6E5E; --mint:#2EC4A9; --pink:#E0357F;
+  --yellow:#FFC93C; --orange:#F0892B; --blue:#2F8FD6; --purple:#7B6FE0; --cream:#FFF7EA; --ink:#1B2A33; --muted:#5E6B74;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+body{font-family:"Noto Sans TC",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:0;top:0;overflow:hidden;background:var(--navy);color:var(--ink);font-size:16px;--rgb:0px}
+#cam{position:absolute;inset:0;transform-origin:50% 50%}
+.scene{position:absolute;inset:0;overflow:hidden;visibility:hidden}
+.bg{position:absolute;inset:0}
+.fill{position:absolute;inset:0}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.a{will-change:transform,opacity}
+.hand{font-family:"LXGW WenKai TC",serif;font-weight:700}
+.en{font-family:"Poppins",sans-serif}
+.k{font-weight:900;letter-spacing:.02em;line-height:1.1}
+/* RGB 殘影：爆點時由 --rgb 驅動 */
+.rgb{text-shadow:calc(var(--rgb) * -1) 0 rgba(255,40,110,.75),var(--rgb) 0 rgba(0,210,255,.75)}
+.ch{display:inline-block}
+.abs{position:absolute}
+.pill{display:inline-flex;align-items:center;gap:16px;border-radius:999px;padding:18px 40px;font-weight:900}
+.outline{color:transparent;-webkit-text-stroke:3px rgba(255,255,255,.22);font-family:Poppins;font-weight:700;white-space:nowrap}
+.marq{position:absolute;left:0;font-size:220px;line-height:1}
+.conf{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none}
+.conf i{position:absolute;display:block}
+#wipe{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#wipe b{position:absolute;top:-30%;bottom:-30%;width:140%;transform:skewX(-18deg)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#grain{position:absolute;inset:-64px;background:url(assets/grain.png);mix-blend-mode:overlay;opacity:.13;pointer-events:none}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.28));pointer-events:none}
+#endfade{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#glow{position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:radial-gradient(ellipse at 50% 45%,rgba(255,236,200,.95),rgba(255,210,160,.35) 45%,transparent 75%)}
+#leak{position:absolute;inset:-20%;pointer-events:none;mix-blend-mode:screen;opacity:0;
+  background:radial-gradient(40% 35% at 20% 25%,rgba(255,170,90,.55),transparent 70%),radial-gradient(35% 30% at 85% 75%,rgba(255,120,150,.45),transparent 70%)}
+
+/* ═════ 溫馨版（.warm）：暖色、手寫標題、柔光，不震動 ═════ */
+.warm #grain{opacity:.06}
+.warm #leak{opacity:.55}
+.warm .k{font-family:"LXGW WenKai TC",serif;font-weight:700;letter-spacing:.04em}
+.warm .outline{-webkit-text-stroke-color:rgba(200,110,60,.16)}
+.warm #hook .bg{background:radial-gradient(1000px 700px at 50% 35%,#5A3B3A,#2A1E22 75%)}
+.warm #logo .bg{background:radial-gradient(1300px 900px at 50% 45%,#FFF6E8,#FAD2AE 80%)}
+.warm .rays{background:repeating-conic-gradient(from 0deg,rgba(255,180,110,.20) 0 7deg,transparent 7deg 20deg)}
+.warm #logo .txt{color:var(--ink)}
+.warm #logo .t2{text-shadow:none}
+.warm #logo .t3{color:var(--teal2)}
+.warm #logo .t4{color:var(--orange)}
+.warm .ring{border-color:rgba(240,137,43,.8)}
+.warm #ramp .bg,.warm #people .bg,.warm #std .bg,.warm #wall .bg,.warm #ben .bg{background:radial-gradient(1400px 1000px at 30% 20%,#FFF9F0,#FDEBD8 80%)}
+.warm #stat .bg{background:radial-gradient(1100px 800px at 50% 50%,#FFF4E4,#F9D4B4 85%)}
+.warm #statNum{background-image:linear-gradient(135deg,#F0892B,#E0357F)}
+.warm #stat .suf,.warm #stat .pre,.warm #stat .post{color:var(--ink)}
+.warm #stat .inc{color:var(--teal2)}
+.warm .statRing{border-color:rgba(200,110,60,.25)}
+.warm .cp{color:var(--ink)}
+.warm .cp .ic{background:rgba(255,255,255,.7)}
+.warm .catTop{color:var(--ink)}
+.warm .ft .tint{opacity:.38}
+.warm .ft .nm{text-shadow:0 4px 24px rgba(60,30,20,.45)}
+.warm #throw{background:radial-gradient(1400px 1000px at 50% 40%,#FFF3E4,#F6D3B6 85%)}
+.warm #biz .bg{background:radial-gradient(1100px 800px at 50% 40%,#5A3B3A,#2A1E22 80%)}
+.warm .beam{background:linear-gradient(90deg,transparent,rgba(255,190,120,.16),transparent)}
+.warm #steps .bg{background:linear-gradient(135deg,#F4A06B,#E0708C)}
+.warm #outro .bg{background:radial-gradient(1400px 1000px at 50% 40%,#F7B07A,#E0708C 85%)}
+.warm #break .bg{background:radial-gradient(1200px 900px at 30% 30%,#FFE9EF,#FFF4E6 60%)}
+.warm .conf i{filter:blur(1.5px)}
+
+/* ── HOOK ── */
+#hook .bg{background:radial-gradient(900px 600px at 50% 40%,#1A3A4A,var(--navy) 70%)}
+.hk{position:absolute;left:0;right:0;text-align:center;color:#fff}
+.hkBig{top:50%;margin-top:-127px;font-size:230px}
+#hookTop{position:absolute;left:0;right:0;top:120px;height:420px}
+#hookTop .hk{top:0}
+.hkSm{font-size:58px;font-weight:500;color:#9FB6C1;letter-spacing:.1em}
+.hkMid{font-size:150px}
+svg.scn{position:absolute;left:50%;overflow:visible}
+.H svg.scn{width:1400px;height:420px;margin-left:-700px;bottom:70px}
+.V svg.scn{width:1000px;height:300px;margin-left:-500px;top:1180px}
+
+/* ── LOGO ── */
+#logo .bg{background:radial-gradient(1400px 900px at 50% 50%,#27C09F,#0B6E5E 75%)}
+.rays{position:absolute;left:50%;top:50%;width:3600px;height:3600px;margin:-1800px 0 0 -1800px;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.11) 0 7deg,transparent 7deg 20deg)}
+.logoBig{position:relative;width:480px;height:480px;flex:none}
+.logoBig img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;background:#fff;box-shadow:0 30px 90px rgba(0,40,30,.45)}
+.ring{position:absolute;inset:0;border-radius:50%;border:8px solid #fff;opacity:0}
+#logo .wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:90px}
+#logo .txt{color:#fff}
+#logo .t1{font-size:110px}
+#logo .t2{font-size:150px;text-shadow:0 10px 0 rgba(0,60,50,.35)}
+#logo .t3{font-size:34px;color:var(--yellow);letter-spacing:.14em;margin-top:18px;font-weight:600}
+#logo .t4{font-size:110px;color:#FFE08A;margin-top:30px;letter-spacing:.08em}
+.V #logo .wrap{flex-direction:column;gap:70px;text-align:center}
+.V #logo .t2{font-size:136px}
+.V #logo .t3{font-size:28px}
+.V #logo .t4{font-size:100px}
+
+/* ── RAMP ── */
+#ramp .bg{background:var(--cream)}
+#rampTxt{position:absolute;left:0;right:0;text-align:center}
+.H #rampTxt{top:90px}
+.V #rampTxt{top:330px}
+#rampTxt .ln{font-size:130px;white-space:nowrap}
+.V #rampTxt .ln{font-size:120px;line-height:1.3}
+.mark{padding:0 16px;border-radius:14px;color:#fff;display:inline-block}
+
+/* ── PEOPLE ── */
+#people .bg{background:var(--cream)}
+#heroCam{position:absolute;left:0;top:0;transform-origin:0 0}
+#heroCam img{display:block;width:2000px;height:593px}
+.plab{position:absolute;left:0;right:0;text-align:center}
+.H .plab{top:60px}
+.V .plab{top:260px}
+.plab span{display:inline-block;color:#fff;font-size:110px;font-weight:900;padding:10px 46px;border-radius:24px;transform:rotate(-2deg);box-shadow:0 20px 50px rgba(0,0,0,.18)}
+.V .plab span{font-size:92px}
+.plab.big{font-size:120px;font-weight:900;color:var(--ink)}
+.V .plab.big{font-size:96px;line-height:1.3}
+
+/* ── STAT ── */
+#stat .bg{background:radial-gradient(1100px 800px at 50% 50%,#164B55,var(--navy) 75%)}
+#statNum{font-family:Poppins;font-weight:700;font-size:400px;line-height:1;letter-spacing:-.03em;
+  background:linear-gradient(135deg,#4FE3C1,#FFC93C);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.V #statNum{font-size:330px}
+#stat .suf{font-size:150px;color:#fff;margin-left:10px}
+#stat .pre{font-size:80px;color:#fff}
+#stat .post{font-size:96px;color:#fff;margin-top:10px}
+#stat .inc{font-size:44px;color:#9FE8D4;margin-top:26px;font-weight:700;letter-spacing:.08em}
+.statRing{position:absolute;left:50%;top:50%;border-radius:50%;border:3px dashed rgba(255,255,255,.18)}
+
+/* ── CATS ── */
+.cp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:80px;color:#fff}
+.V .cp{flex-direction:column;gap:40px}
+.cp .ic{width:380px;height:380px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center}
+.cp .ic svg{width:220px;height:220px}
+.cp .w{font-size:230px}
+.cp .num{position:absolute;right:60px;bottom:-60px;font-size:520px}
+.catTop{position:absolute;left:0;right:0;text-align:center;color:#fff;font-size:52px;font-weight:900;letter-spacing:.12em;z-index:5}
+.H .catTop{top:70px}
+.V .catTop{top:220px}
+
+/* ── STD ── */
+#std .bg{background:var(--cream)}
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sc .card{width:440px;height:440px;border-radius:70px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 40px 90px rgba(0,0,0,.18)}
+.sc .card svg{width:270px;height:270px}
+.sc .lb{font-size:100px;font-weight:900;margin-top:50px;color:var(--ink);text-align:center;line-height:1.2}
+.V .sc .lb{font-size:84px}
+.sc .tg{position:absolute;left:0;right:0;text-align:center;font-size:44px;font-weight:900;color:var(--ink);letter-spacing:.1em}
+.H .sc .tg{top:70px}
+.V .sc .tg{top:240px}
+.sc .tg em{font-style:normal;font-family:Poppins;margin-left:16px;opacity:.6}
+#stdGrid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px}
+.gRow{display:flex;gap:26px;align-items:center}
+.gRow .lab{font-size:40px;font-weight:900;color:#fff;border-radius:18px;padding:14px 26px;width:230px;text-align:center}
+.V .gRow{flex-direction:column}
+.V .gRow .lab{width:auto;padding:12px 40px}
+.gRow .its{display:flex;gap:18px}
+.gi{width:270px;text-align:center}
+.H .gRow .its{gap:24px}
+.V .gi{width:196px}
+.gi .c{width:170px;height:170px;border-radius:46px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.gi .c svg{width:100px;height:100px}
+.gi p{font-size:32px;font-weight:900;margin-top:14px;line-height:1.3}
+.V .gi .c{width:140px;height:140px}.V .gi .c svg{width:84px;height:84px}.V .gi p{font-size:26px}
+#stdGrid{gap:50px}
+
+/* ── STORES ── */
+.ft{position:absolute;inset:0}
+.ft .bgp{position:absolute;inset:-60px;background-size:cover;background-position:center;filter:blur(36px) saturate(1.3)}
+.ft .tint{position:absolute;inset:0;opacity:.72}
+.ft .ph{position:absolute;border:14px solid #fff;border-radius:18px;overflow:hidden;box-shadow:0 50px 100px rgba(0,0,0,.4)}
+.H .ft .ph{left:120px;top:150px;width:1060px;height:720px}
+.V .ft .ph{left:60px;top:260px;width:960px;height:760px}
+.ft .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ft .info{position:absolute;color:#fff}
+.H .ft .info{left:1240px;right:60px;top:330px}
+.V .ft .info{left:60px;right:60px;top:1100px;text-align:center}
+.ft .tag{display:inline-block;background:#fff;font-size:34px;font-weight:900;padding:8px 24px;border-radius:12px}
+.ft .nm{font-size:84px;font-weight:900;line-height:1.15;margin-top:24px;text-shadow:0 6px 30px rgba(0,0,0,.25)}
+.V .ft .nm{font-size:96px}
+.ft .ad{font-size:38px;margin-top:22px;font-weight:700;opacity:.95}
+.ft .yr{font-size:38px;margin-top:18px;font-weight:700}
+.stars{color:var(--yellow);letter-spacing:4px}
+.ft .idx{position:absolute;font-size:300px;opacity:.9}
+.H .ft .idx{right:40px;bottom:-40px}
+.V .ft .idx{right:40px;top:40px}
+#throw{position:absolute;inset:0;background:var(--navy)}
+.pol{position:absolute;left:50%;top:50%;background:#fff;padding:16px 16px 70px;box-shadow:0 30px 70px rgba(0,0,0,.5);border-radius:6px}
+.pol img{display:block;width:560px;height:360px;object-fit:cover}
+.pol p{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:30px;font-weight:900}
+
+/* ── WALL ── */
+#wall .bg{background:var(--cream)}
+#wall .head{position:absolute;left:0;right:0;text-align:center;font-size:96px}
+.H #wall .head{top:60px}
+.V #wall .head{top:180px;line-height:1.3}
+.hlY{background:linear-gradient(transparent 58%,var(--yellow) 58%);padding:0 8px}
+#wallGrid{position:absolute;display:grid;gap:26px}
+.H #wallGrid{left:50%;margin-left:-844px;top:290px;grid-template-columns:repeat(4,400px)}
+.V #wallGrid{left:50%;margin-left:-503px;top:480px;grid-template-columns:repeat(2,490px)}
+.wc{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 18px 40px rgba(20,40,40,.14)}
+.wc .im{height:250px;position:relative}
+.V .wc .im{height:200px}
+.wc .im img{width:100%;height:100%;object-fit:cover;display:block}
+.wc .im b{position:absolute;left:12px;top:12px;color:#fff;font-size:20px;padding:4px 12px;border-radius:8px}
+.wc .cn{font-size:28px;font-weight:900;padding:14px 18px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc .cd{font-size:20px;color:var(--muted);padding:0 18px 16px;display:flex;justify-content:space-between}
+
+/* ── BREAK ── */
+#break .bg{background:radial-gradient(1200px 900px at 30% 30%,#FDEFF4,var(--cream) 60%)}
+#break .l1{font-size:80px;color:var(--muted);font-weight:500;letter-spacing:.06em}
+#break .l2{font-size:140px;margin-top:40px;line-height:1.25}
+.V #break .l2{font-size:110px}
+
+/* ── BIZ ── */
+#biz .bg{background:var(--navy)}
+.beam{position:absolute;top:-20%;bottom:-20%;width:260px;background:linear-gradient(90deg,transparent,rgba(46,196,169,.18),transparent);transform:skewX(-15deg)}
+.bz{position:absolute;left:0;right:0;top:50%;margin-top:-132px;text-align:center;color:#fff;font-size:240px}
+.V .bz{font-size:190px;margin-top:-105px}
+#biz .kick{position:absolute;left:0;right:0;text-align:center;color:var(--yellow);font-size:50px;font-weight:900;letter-spacing:.3em}
+.H #biz .kick{top:120px}
+.V #biz .kick{top:360px}
+
+/* ── STEPS ── */
+#steps .bg{background:linear-gradient(135deg,#1FA48A,#128C9E)}
+#steps .head{position:absolute;left:0;right:0;text-align:center;color:#fff;font-size:130px}
+.H #steps .head{top:120px}
+.V #steps .head{top:260px}
+#stepsRow{position:absolute;display:flex}
+.H #stepsRow{left:50%;margin-left:-850px;top:470px;width:1700px}
+.V #stepsRow{left:120px;top:560px;flex-direction:column;gap:46px}
+#stepLine{position:absolute;background:rgba(255,255,255,.9);border-radius:4px}
+.H #stepLine{left:170px;right:170px;top:78px;height:8px;transform-origin:left}
+.V #stepLine{left:78px;top:80px;bottom:80px;width:8px;transform-origin:top}
+.stp{width:340px;text-align:center;color:#fff;position:relative}
+.V .stp{width:840px;display:flex;align-items:center;gap:44px;text-align:left}
+.stp .n{width:164px;height:164px;border-radius:50%;background:#fff;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--teal2);box-shadow:0 20px 50px rgba(0,0,0,.2);flex:none}
+.V .stp .n{margin:0}
+.stp .n small{font-family:Poppins;font-size:22px;font-weight:600;letter-spacing:.1em}
+.stp .n b{font-family:Poppins;font-size:70px;line-height:1}
+.stp p{font-size:50px;font-weight:900;margin-top:30px;line-height:1.3}
+.V .stp p{margin-top:0;font-size:60px}
+.stp p span{display:block;font-size:30px;font-weight:500;opacity:.9}
+
+/* ── BEN ── */
+#ben .bg{background:var(--cream)}
+#ben .wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:70px}
+.V #ben .wrap{flex-direction:column;gap:50px}
+#ben .left{width:760px}
+.V #ben .left{width:960px}
+#ben .h{font-size:88px;line-height:1.25}
+.V #ben .h{text-align:center;font-size:78px}
+#ben ul{list-style:none;margin-top:40px;display:flex;flex-direction:column;gap:22px}
+#ben li{display:flex;align-items:center;gap:22px;font-size:38px;font-weight:900;background:#fff;border-radius:22px;padding:20px 28px;box-shadow:0 12px 30px rgba(20,40,40,.08)}
+#ben li i{flex:none;width:54px;height:54px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center}
+#benBig{width:640px;height:640px;border-radius:60px;background:linear-gradient(145deg,#E0357F,#F0892B);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 50px 100px rgba(224,53,127,.35);position:relative;overflow:hidden;flex:none}
+.V #benBig{width:960px;height:560px}
+#benBig .k1{font-size:44px;font-weight:900}
+#benBig .amt{font-family:Poppins;font-weight:700;font-size:190px;line-height:1.05;margin-top:10px;font-variant-numeric:tabular-nums}
+#benBig .u{font-size:56px;font-weight:900}
+#benBig .f{font-size:28px;margin-top:34px;background:rgba(255,255,255,.2);padding:10px 28px;border-radius:999px}
+
+/* ── OUTRO ── */
+#outro .bg{background:radial-gradient(1400px 1000px at 50% 45%,#27C09F,#0B6E5E 80%)}
+#outro .center{color:#fff}
+#outro .logoBig{width:320px;height:320px}
+.V #outro .logoBig{width:420px;height:420px}
+#outro .t1{font-size:100px;margin-top:44px;line-height:1.25}
+.V #outro .t1{font-size:96px}
+#outro .t2{font-size:64px;color:#FFE08A;margin-top:18px;letter-spacing:.12em}
+#outro .links{display:flex;gap:26px;margin-top:46px}
+.V #outro .links{flex-direction:column;gap:22px}
+#outro .lk{display:flex;align-items:center;gap:16px;background:#fff;color:var(--ink);border-radius:999px;padding:20px 40px 20px 26px;font-size:38px;font-weight:900;box-shadow:0 20px 50px rgba(0,0,0,.25);white-space:nowrap}
+#outro .lk svg{width:46px;height:46px;flex:none}
+#outro .share{margin-top:40px;font-size:44px;font-weight:900;color:#fff;letter-spacing:.06em}
+#credit{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:28px;color:#fff;font-size:46px;font-weight:900;letter-spacing:.3em}
+.H #credit{bottom:46px}
+.V #credit{bottom:150px}
+#credit i{display:block;width:90px;height:3px;background:rgba(255,255,255,.7)}
+#credit small{font-size:.62em;font-weight:500;letter-spacing:.4em;opacity:.9}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div id="cam">
+
+  <!-- 01 HOOK -->
+  <section class="scene" id="hook">
+    <div class="bg"></div>
+    <div class="hk hkBig k rgb a" data-a="0 .22 slam" data-u="2">一扇門</div>
+    <div class="hk hkBig k rgb a" data-a="2 .22 slam" data-u="4">一道台階</div>
+    <div class="hk hkBig k rgb a" data-a="4 .22 slam" data-u="6">一個門檻</div>
+    <div id="hookTop">
+      <div class="hk hkSm a" data-a="8.25 .5 up" data-u="13" style="top:0">對有些人來說</div>
+      <div class="hk hkMid k rgb a" data-a="10 .22 slam" data-u="13" style="top:100px">這就是<span class="a" data-a="11 .22 slam" style="display:inline-block;color:var(--pink);margin-left:24px">一段距離</span></div>
+      <div class="hk k rgb a" data-a="13 .22 slam" data-u="15.5" style="top:60px;font-size:200px;color:var(--yellow)">直到——</div>
+    </div>
+    <svg class="scn a" id="hookSvg" data-a="6 .3 fade" viewBox="0 0 1400 420">
+      <path id="hookStep" d="M0 380H820V290H1400" fill="none" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+      <g id="hookWc"></g>
+    </svg>
+  </section>
+
+  <!-- 02 LOGO -->
+  <section class="scene" id="logo">
+    <div class="bg"></div>
+    <div class="rays" id="logoRays"></div>
+    <div class="marq outline" id="mq1" style="top:20px">FRIENDLY ♥ KAOHSIUNG ♥ FRIENDLY ♥ KAOHSIUNG ♥ FRIENDLY ♥ KAOHSIUNG ♥</div>
+    <div class="marq outline" id="mq2" style="bottom:20px">友善 ♥ FRIENDLY ♥ 友善 ♥ FRIENDLY ♥ 友善 ♥ FRIENDLY ♥ 友善 ♥ FRIENDLY ♥</div>
+    <div class="conf" id="cfLogo"></div>
+    <div class="wrap">
+      <div class="logoBig pulse">
+        <div class="ring" id="lr1"></div><div class="ring" id="lr2"></div>
+        <img class="a" src="assets/logo.png" data-a="0 .5 stamp" alt="">
+      </div>
+      <div class="txt">
+        <div class="t1 k rgb a" data-a="2 .22 slam">高雄市</div>
+        <div class="t2 k rgb a" data-a="3 .6 chars">友善營業場所</div>
+        <div class="t3 en a" data-a="5 .5 wipe">KAOHSIUNG FRIENDLY BUSINESS LOCATION</div>
+        <div class="t4 hand"><span class="a ch" data-a="8 .22 slam">友你有我</span>　<span class="a ch" data-a="10 .22 slam">從心出發</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 RAMP -->
+  <section class="scene" id="ramp">
+    <div class="bg"></div>
+    <div id="rampTxt">
+      <div class="ln k"><span class="a ch" data-a="0 .22 slam">把台階，</span><br class="vbr"><span class="a ch" data-a="2 .22 slam"><span class="mark" style="background:var(--teal)">變成斜坡</span></span></div>
+      <div class="ln k" style="margin-top:20px"><span class="a ch" data-a="6 .22 slam">把距離，</span><br class="vbr"><span class="a ch" data-a="7 .22 slam"><span class="mark" style="background:var(--pink)">變成心意</span></span></div>
+    </div>
+    <svg class="scn" id="rampSvg" viewBox="0 0 1400 420">
+      <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1FA48A" stop-opacity=".35"/><stop offset="1" stop-color="#1FA48A" stop-opacity="0"/></linearGradient></defs>
+      <path id="rampFill" fill="url(#rg)"/>
+      <path id="rampPath" fill="none" stroke="#1B2A33" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+      <g id="rampWc"></g>
+      <g id="heart" opacity="0"><path d="M0 18C-30-8-22-34 0-22 22-34 30-8 0 18z" fill="#E0357F"/></g>
+      <g id="heartBurst" stroke="#E0357F" stroke-width="6" stroke-linecap="round" opacity="0"></g>
+    </svg>
+  </section>
+
+  <!-- 04 PEOPLE -->
+  <section class="scene" id="people">
+    <div class="bg"></div>
+    <div id="heroCam"><img src="assets/hero.jpg" alt=""></div>
+    <div class="plab k rgb a big" data-a="0 .22 slam" data-u="2">每一天，<br class="vbr">都有人這樣出門</div>
+    <div class="plab a" data-a="2 .22 slam" data-u="5"><span style="background:#8BB84A">推嬰兒車的爸媽</span></div>
+    <div class="plab a" data-a="5 .22 slam" data-u="8"><span style="background:var(--blue)">準媽媽</span></div>
+    <div class="plab a" data-a="8 .22 slam" data-u="11"><span style="background:var(--pink)">輪椅使用者</span></div>
+    <div class="plab a" data-a="11 .22 slam" data-u="14"><span style="background:var(--orange)">銀髮長輩</span></div>
+    <div class="plab big k a" data-a="14 .22 slam">每一個人，<br class="vbr"><span class="a ch" data-a="15 .22 slam" style="color:var(--teal)">都值得被好好接待</span></div>
+  </section>
+
+  <!-- 05 STAT -->
+  <section class="scene" id="stat">
+    <div class="bg"></div>
+    <div class="statRing" id="sr1" style="width:900px;height:900px;margin:-450px 0 0 -450px"></div>
+    <div class="statRing" id="sr2" style="width:1300px;height:1300px;margin:-650px 0 0 -650px;border-style:dotted"></div>
+    <div class="conf" id="cfStat"></div>
+    <div class="center">
+      <div class="pre k a" data-a="0 .22 slam">全高雄已有</div>
+      <div style="display:flex;align-items:baseline" id="statBox"><span id="statNum">0</span><span class="suf k a" data-a="4 .22 slam">家</span></div>
+      <div class="post k rgb a" data-a="5 .22 slam">店家獲得友善認證</div>
+      <div class="inc a" data-a="6 .4 up">▲ 而且每年都在增加</div>
+    </div>
+  </section>
+
+  <!-- 06 CATS -->
+  <section class="scene" id="cats">
+    <div class="bg" style="background:var(--blue)"></div>
+    <div id="catPanels"></div>
+    <div class="catTop a" data-a="0 .3 fade">友善，就在你身邊</div>
+  </section>
+
+  <!-- 07 STD -->
+  <section class="scene" id="std">
+    <div class="bg"></div>
+    <div class="center" data-u="2" id="stdTitle">
+      <div class="k rgb a" data-a="0 .22 slam" style="font-size:180px">友善，<span style="color:var(--teal)">有標準</span></div>
+      <div class="a" data-a="1 .3 up" style="font-size:56px;font-weight:900;color:var(--muted);margin-top:24px">10 項評選指標，一項一項來</div>
+    </div>
+    <div id="stdCards"></div>
+    <div id="stdGrid">
+      <div class="gRow" id="gEnv"><div class="lab a" data-a="12 .22 slam" style="background:#E0A800">友善環境</div><div class="its"></div></div>
+      <div class="gRow" id="gAct"><div class="lab a" data-a="12.5 .22 slam" style="background:#17A68D">友善措施</div><div class="its"></div></div>
+    </div>
+  </section>
+
+  <!-- 08 STORES -->
+  <section class="scene" id="stores">
+    <div class="bg" style="background:var(--navy)"></div>
+    <div id="feats"></div>
+    <div id="throw" class="a" data-a="12 .01 cut"><div class="marq outline" style="top:50%;margin-top:-110px" id="mq3">REAL PLACES ♥ REAL FRIENDLINESS ♥ REAL PLACES ♥ REAL FRIENDLINESS ♥</div></div>
+  </section>
+
+  <!-- 09 WALL -->
+  <section class="scene" id="wall">
+    <div class="bg"></div>
+    <div class="head k"><span class="a ch" data-a="0 .22 slam">友善，正在高雄的</span><br class="vbr"><span class="a ch" data-a="1 .22 slam"><span class="hlY">每個角落發生</span></span></div>
+    <div id="wallGrid"></div>
+  </section>
+
+  <!-- 10 BREAK -->
+  <section class="scene" id="break">
+    <div class="bg"></div>
+    <div class="center">
+      <div class="l1 a" data-a=".5 .8 up">無障礙，不只是一道斜坡</div>
+      <div class="l2 k"><span class="a ch" data-a="3 .9 blur">更是願意<br class="vbr">多想一步的</span><span class="a ch" data-a="5 .5 stamp" style="color:var(--pink)">心意</span></div>
+    </div>
+  </section>
+
+  <!-- 11 BIZ -->
+  <section class="scene" id="biz">
+    <div class="bg"></div>
+    <div class="beam" id="bm1"></div><div class="beam" id="bm2"></div>
+    <div class="kick a" data-a="0 .3 fade">給店家的邀請</div>
+    <div class="bz k rgb a" data-a="2 .22 slam" data-u="4">你的店</div>
+    <div class="bz k rgb a" data-a="4 .22 slam" data-u="5">也能是</div>
+    <div class="bz k rgb a" data-a="5 .22 slam" data-u="6">下一個</div>
+    <div class="bz k rgb a" data-a="6 .22 slam" data-u="7.5" style="color:var(--yellow)">友善角落</div>
+  </section>
+
+  <!-- 12 STEPS -->
+  <section class="scene" id="steps">
+    <div class="bg"></div>
+    <div class="head k rgb a" data-a="0 .22 slam">認證 5 步驟</div>
+    <div id="stepsRow"><div id="stepLine"></div></div>
+  </section>
+
+  <!-- 13 BEN -->
+  <section class="scene" id="ben">
+    <div class="bg"></div>
+    <div class="conf" id="cfBen"></div>
+    <div class="wrap">
+      <div class="left">
+        <div class="h k a" data-a="0 .22 slam">加入認證，<br class="hbr">好處不只一個</div>
+        <ul id="benList"></ul>
+      </div>
+      <div id="benBig" class="a" data-a="3 .3 pop">
+        <div class="k1">獲認證後修繕營業空間</div>
+        <div class="amt"><span id="benAmt">0</span></div>
+        <div class="u">元補助（最高）</div>
+        <div class="f">適用 20～90 坪中小型營業場所</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 OUTRO -->
+  <section class="scene" id="outro">
+    <div class="bg"></div>
+    <div class="rays" id="outRays"></div>
+    <div class="conf" id="cfOut"></div>
+    <div class="conf" id="cfOut2"></div>
+    <div class="center">
+      <div class="logoBig pulse"><div class="ring" id="or1"></div><div class="ring" id="or2"></div><img class="a" src="assets/logo.png" data-a="0 .5 stamp" alt=""></div>
+      <div class="t1 k rgb"><span class="a ch" data-a="2 .22 slam">看見這個標章，</span><br class="vbr"><span class="a ch" data-a="3 .22 slam">就是友善的承諾</span></div>
+      <div class="t2 hand a" data-a="5 .6 wipe">友你有我．從心出發</div>
+      <div class="links">
+        <div class="lk a" data-a="6 .22 slam"><svg viewBox="0 0 40 40" fill="none" stroke="#1FA48A" stroke-width="3.5" stroke-linecap="round"><circle cx="20" cy="20" r="15"/><path d="M5 20h30M20 5c-6 7-6 23 0 30M20 5c6 7 6 23 0 30"/></svg><span class="en">www.friendlycity.url.tw</span></div>
+        <div class="lk a" data-a="7 .22 slam"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#1877F2"/><path d="M22 33V22h4l.6-4.5H22v-3c0-1.3.4-2.2 2.2-2.2h2.5v-4a33 33 0 0 0-3.6-.2c-3.6 0-6 2.2-6 6.2v3.3h-4V22h4v11z" fill="#fff"/></svg>FB <span class="en" style="color:#1877F2">KaoLoveLife</span></div>
+      </div>
+      <div class="share a" data-a="9 .4 up">♥ 分享出去，讓友善被更多人看見</div>
+    </div>
+    <div id="credit" class="a" data-a="12.5 .6 up"><i></i><span>方熊</span><small>出品</small><i></i></div>
+  </section>
+
+ </div>
+ <div id="wipe"><b style="background:var(--yellow)"></b><b style="background:var(--pink)"></b><b style="background:var(--teal)"></b></div>
+ <div id="flash"></div>
+ <div id="grain"></div>
+ <div id="vig"></div>
+ <div id="leak"></div>
+ <div id="glow"></div>
+ <div id="endfade"></div>
+</div>
+
+<script>
+const Q = new URLSearchParams(location.search);
+const A = f => (window.ASSETS && ASSETS[f]) || 'assets/' + f; // 素材路徑（打包版改用內嵌）
+const V = Q.get('v') === '1';
+document.body.classList.add(V ? 'V' : 'H');
+const WARM = STYLE === 'warm';
+if (WARM) document.body.classList.add('warm');
+document.querySelectorAll(V ? '.hbr' : '.vbr').forEach(b => b.remove());
+const W = V ? 1080 : 1920, H = V ? 1920 : 1080;
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
+const $ = id => document.getElementById(id);
+
+// ── 時間軸（拍）──
+const BEAT = 60 / PROJECT.bpm;
+const SCN = PROJECT.scenes, ST = {}, SI = {};
+let accB = 0;
+SCN.forEach((sc, i) => { ST[sc.id] = [accB * BEAT, (accB + sc.beats) * BEAT]; SI[sc.id] = i; accB += sc.beats; });
+const DURATION = accB * BEAT + PROJECT.tail;
+ST[SCN.at(-1).id][1] = DURATION + 1;
+const S = id => ST[id][0];
+const B = n => n * BEAT;
+const at = (id, b) => S(id) + B(b);
+const HITS = SCN.flatMap(sc => (sc.hits || []).map(h => at(sc.id, h)));
+const PUNCH_MODES = new Set(['drop', 'build']);
+
+// ── 資料 ──
+const STORES = [
+  ['MINI.D COFFEE 仁雄館','餐飲','仁武區','114','s0'],
+  ['福音復健科診所','診所','左營區','112','s1'],
+  ['九湯屋日本拉麵(仁武店)','餐飲','仁武區','109','s2'],
+  ['福樂多醫療福祉事業','一般商店','鼓山區','108','s3'],
+  ['為好診所','診所','鼓山區','106','s4'],
+  ['順億鮪魚專賣店-右昌門市','餐飲','楠梓區','114','s5'],
+  ['御書房生活藝術空間','餐飲','苓雅區','113','s7'],
+  ['洋咖啡','餐飲','左營區','113','s8'],
+];
+const TAGC = {'餐飲':'#2F8FD6','診所':'#F0892B','藥局':'#1FA48A','一般商店':'#7B6FE0'};
+const FEAT = [1, 7, 6, 5];  // 特寫：福音復健科、洋咖啡、御書房、順億鮪魚
+const ic = (p, c = '#fff', w = 4.5) => `<svg viewBox="0 0 64 64" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICON = {
+  wc: '<circle cx="22" cy="12" r="4.5" fill="currentColor"/><path d="M22 20v16h14l6 14"/><path d="M16 28a13 13 0 1 0 20 16"/><path d="M42 12l3 12 3-9 3 9 3-12M58 34c-2-3-8-3-8 4s6 7 8 4"/>',
+  table: '<path d="M6 22h52M12 22v30M52 22v30M10 30h44"/>',
+  path: '<path d="M8 32h40M38 20l12 12-12 12"/><path d="M8 12v40M58 12v40" stroke-dasharray="4 6"/>',
+  clean: '<path d="M10 54l8-22h28l8 22zM32 32v22M14 43h36"/><path d="M26 8v12M20 14h12M44 6v8M40 10h8"/>',
+  door: '<circle cx="32" cy="32" r="22"/><path d="M20 32h22M34 23l9 9-9 9"/>',
+  bell: '<path d="M18 44V30a14 14 0 0 1 28 0v14l4 4H14zM28 54a4 4 0 0 0 8 0M32 10v6"/><path d="M8 24a26 26 0 0 1 6-10M56 24a26 26 0 0 0-6-10"/>',
+  dog: '<path d="M8 30c0-3 2-5 5-5h24l7-9 3 1 3 6h5l3 5-4 3h-6l-3 4v18h-5V40H20v13h-5V37c-4-1-7-3-7-7z" fill="currentColor" stroke="none"/><path d="M28 25L20 8h12" stroke-width="4"/>',
+  bolt: '<path d="M36 6L22 34h12l-4 24 16-30H34z" fill="currentColor"/>',
+  book: '<path d="M32 18c-6-4-14-5-22-4v36c8-1 16 0 22 4 6-4 14-5 22-4V14c-8-1-16 0-22 4zM32 18v36"/><path d="M16 26h9M16 34h9M39 26h9M39 34h9"/>',
+  car: '<path d="M8 44V34l6-12h26l8 12h8v10z"/><circle cx="18" cy="46" r="5" fill="currentColor"/><circle cx="46" cy="46" r="5" fill="currentColor"/><path d="M16 32h26"/>',
+  food: '<path d="M18 8v18a6 6 0 0 0 12 0V8M24 8v48M44 8c-6 4-8 12-8 20h8v28"/>',
+  clinic: '<path d="M10 56V22l22-12 22 12v34z"/><path d="M32 26v18M23 35h18"/>',
+  pill: '<g transform="rotate(-35 32 32)"><rect x="10" y="22" width="44" height="20" rx="10"/><path d="M32 22v20"/></g>',
+  shop: '<path d="M8 24l6-14h36l6 14c0 5-4 8-8 8s-8-3-8-8c0 5-4 8-8 8s-8-3-8-8c0 5-4 8-8 8s-8-3-8-8z"/><path d="M14 32v22h36V32M26 54V42h12v12"/>',
+};
+const STD = [
+  ['無障礙廁所','wc',0],['桌子高度可容膝','table',0],['通道無阻礙','path',0],['地面整潔乾淨','clean',0],['出入口平順<br>無高低差','door',0],
+  ['友善服務鈴','bell',1],['導盲犬可進入','dog',1],['電動輪椅代步車<br>友善充電座','bolt',1],['易讀訂購(菜)單','book',1],['個別化服務<br>免下車服務','car',1],
+];
+const STDC = WARM ? [['#FFE3A3', '#B07A00', '友善環境'], ['#BDEBDF', '#0B6E5E', '友善措施']]
+                  : [['#FFC93C', '#B07A00', '友善環境'], ['#2EC4A9', '#0B6E5E', '友善措施']];
+
+// ── 動態產生的場景內容 ──
+// CATS：每 2 拍一個全螢幕色塊
+[['餐飲','food','#2F8FD6','#D3E6F8'],['診所','clinic','#F0892B','#FCE3CB'],['藥局','pill','#1FA48A','#CFEFE6'],['一般商店','shop','#7B6FE0','#E3DEF9']].forEach(([w, i, c, pc], k) => {
+  const d = document.createElement('div');
+  d.className = 'cp catp'; d.dataset.b = k * 2; d.style.background = WARM ? pc : c;
+  d.innerHTML = `<div class="num outline" style="-webkit-text-stroke-color:${WARM ? c + '44' : 'rgba(255,255,255,.25)'}">0${k + 1}</div>
+    <div class="ic a" data-a="${k * 2} .25 stamp">${ic(ICON[i], WARM ? c : '#fff', 4)}</div><div class="w k rgb a" data-a="${k * 2 + .25} .22 slam">${w}</div>`;
+  $('catPanels').appendChild(d);
+});
+// STD：一拍一個
+STD.forEach(([n, i, g], k) => {
+  const [bg, fg, tg] = STDC[g], b = 2 + k;
+  const d = document.createElement('div');
+  d.className = 'sc a'; d.dataset.a = `${b} .01 cut`; d.dataset.u = b + 1; d.style.background = bg;
+  d.innerHTML = `<div class="tg">${tg}<em>${String(k % 5 + 1).padStart(2, '0')} / 05</em></div>
+    <div class="card a" data-a="${b} .3 stamp" style="color:${fg};transform:rotate(${k % 2 ? 3 : -3}deg)">${ic(ICON[i], fg, 4)}</div>
+    <div class="lb k a" data-a="${b + .1} .22 slam">${n}</div>`;
+  $('stdCards').appendChild(d);
+  const gi = document.createElement('div');
+  gi.className = 'gi a'; gi.dataset.a = `${12 + k * .125} .3 stamp`;
+  gi.innerHTML = `<div class="c" style="background:${bg};color:#fff">${ic(ICON[i], '#fff', 4.5)}</div><p>${n}</p>`;
+  $(g ? 'gAct' : 'gEnv').querySelector('.its').appendChild(gi);
+});
+$('stdGrid').classList.add('a'); $('stdGrid').dataset.a = '12 .01 cut';
+// STORES：4 家特寫，每家 3 拍
+FEAT.forEach((k, i) => {
+  const [n, c, d, y, img] = STORES[k], b = i * 3;
+  const f = document.createElement('div');
+  f.className = 'ft a'; f.dataset.a = `${b} .01 cut`; f.dataset.u = b + 3; f.dataset.b = b;
+  f.innerHTML = `<div class="bgp" style="background-image:url(${A(img + '.jpg')})"></div><div class="tint" style="background:${TAGC[c]}"></div>
+    <div class="idx outline en" style="-webkit-text-stroke-color:rgba(255,255,255,.35)">0${i + 1}</div>
+    <div class="ph"><img src="${A(img + '.jpg')}" alt=""></div>
+    <div class="info"><span class="tag a" data-a="${b + .25} .22 pop" style="color:${TAGC[c]}">${c}</span>
+    <div class="nm rgb a" data-a="${b + .5} .22 slam">${n}</div>
+    <div class="ad a" data-a="${b + 1} .3 up">📍 高雄市${d}</div>
+    <div class="yr a" data-a="${b + 1.25} .3 up">${y}年度 <span class="stars">★★★★★</span></div></div>`;
+  $('feats').appendChild(f);
+});
+// STORES：照片連甩（每 8 分音一張）
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+STORES.forEach(([n, , , , img], k) => {
+  const p = document.createElement('div');
+  p.className = 'pol'; p.dataset.b = 12 + k * .5;
+  p._r = (rnd() - .5) * 26; p._x = (rnd() - .5) * (V ? 360 : 900); p._y = (rnd() - .5) * (V ? 900 : 380);
+  p.innerHTML = `<img src="${A(img + '.jpg')}" alt=""><p>${n}</p>`;
+  $('throw').appendChild(p);
+});
+// WALL
+STORES.forEach(([n, c, d, y, img], k) => {
+  const el = document.createElement('div');
+  el.className = 'wc a'; el.dataset.a = `${1.5 + k * .25} .3 stamp`;
+  el.innerHTML = `<div class="im"><img src="${A(img + '.jpg')}" alt=""><b style="background:${TAGC[c]}">${c}</b></div>
+    <div class="cn">${n}</div><div class="cd"><span>高雄市${d}</span><span>${y}年度 <span class="stars" style="letter-spacing:1px">★★★★★</span></span></div>`;
+  $('wallGrid').appendChild(el);
+});
+// STEPS
+[['實地訪查', '提供改善建議'], ['環境修繕', '商家調整空間'], ['星等評選', '友善商家評比'], ['頒發標章', '正式認證'], ['多元行銷', '官網・臉書・記者會']].forEach(([a, b], i) => {
+  const d = document.createElement('div');
+  d.className = 'stp a'; d.dataset.a = `${1 + i} .3 stamp`;
+  d.innerHTML = `<div class="n"><small>STEP</small><b>${i + 1}</b></div><p>${a}<span>${b}</span></p>`;
+  $('stepsRow').appendChild(d);
+});
+// BEN
+['環境友善，顧客更安全便利', '公益正向評價，提升形象', '官網＋FB 微短片行銷，帶人流', '記者會曝光，增加知名度'].forEach((b, i) => {
+  const li = document.createElement('li');
+  li.className = 'a'; li.dataset.a = `${.5 + i * .5} .25 left`;
+  li.innerHTML = `<i><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></i>${b}`;
+  $('benList').appendChild(li);
+});
+
+// 輪椅 SVG（原點＝大輪中心）
+const WC = col => `<g stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <g class="spk"><circle r="48"/><path d="M-48 0H48M0-48V48M-34-34L34 34M34-34L-34 34" stroke-width="4"/></g>
+  <circle cx="74" cy="34" r="14"/>
+  <path d="M-12-52H56L74 20M-12-52L-24-112"/>
+  <circle cx="-4" cy="-150" r="19" fill="${col}"/>
+  <path d="M-8-128L-6-62H48L60 0"/><path d="M-6-112L26-84"/></g>`;
+$('hookWc').innerHTML = WC('#fff'); $('rampWc').innerHTML = WC('#1B2A33');
+for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2;
+  $('heartBurst').innerHTML += `<path d="M${Math.cos(a) * 44} ${Math.sin(a) * 44}L${Math.cos(a) * 70} ${Math.sin(a) * 70}"/>`; }
+
+// 彩帶爆發
+const CONF_COL = ['#FFC93C', '#E0357F', '#2EC4A9', '#2F8FD6', '#F0892B', '#fff'];
+function mkConf(id, n, power, cols = CONF_COL) {
+  const box = $(id), parts = [];
+  for (let k = 0; k < n; k++) {
+    const el = document.createElement('i'), s = 12 + rnd() * 22, shape = k % 3;
+    Object.assign(el.style, {width: s + 'px', height: (shape === 1 ? s * .45 : s) + 'px', background: cols[k % cols.length],
+      borderRadius: shape === 0 ? '50%' : '3px', clipPath: shape === 2 ? 'polygon(50% 0,100% 100%,0 100%)' : ''});
+    const ang = rnd() * Math.PI * 2, sp = power * (.35 + rnd() * .65);
+    const pt = {el, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - power * .35, vr: (rnd() - .5) * 900};
+    if (WARM) {  // 溫馨版：光點與愛心，從四周緩緩飄升
+      const warmCols = ['#FFD39A', '#FFB4C6', '#FFF1C9', '#F9A86B', '#FFFFFF', '#FF8FAB'];
+      Object.assign(el.style, {clipPath: '', borderRadius: '50%', height: s + 'px', background: warmCols[k % 6], opacity: 0});
+      if (k % 4 === 0) Object.assign(el.style, {background: 'none', color: '#FF7FA0', fontSize: s * 1.5 + 'px', lineHeight: 1, width: 'auto', height: 'auto', fontStyle: 'normal'}), el.textContent = '♥';
+      Object.assign(pt, {x0: (rnd() - .5) * W * .8, y0: (rnd() - .2) * H * .5, up: 50 + rnd() * 90, ph: rnd() * 6.28, life: 3.2 + rnd() * 1.6});
+    }
+    parts.push(pt);
+    box.appendChild(el);
+  }
+  return parts;
+}
+const CONF = {
+  cfLogo: [mkConf('cfLogo', 70, 1500), () => at('logo', 0)],
+  cfStat: [mkConf('cfStat', 50, 1300), () => at('stat', 4)],
+  cfBen: [mkConf('cfBen', 50, 1200, ['#FFC93C', '#F7B500', '#FFE08A', '#E0357F']), () => at('ben', 4)],
+  cfOut: [mkConf('cfOut', 60, 1400), () => at('outro', 0)],
+  cfOut2: [mkConf('cfOut2', 80, 1700), () => at('outro', 12)],
+};
+[['cfLogo', .5, .5], ['cfStat', .5, .45], ['cfBen', V ? .5 : .7, V ? .72 : .5], ['cfOut', .5, V ? .3 : .3], ['cfOut2', .5, .5]].forEach(([id, x, y]) => {
+  $(id).style.left = x * W + 'px'; $(id).style.top = y * H + 'px'; });
+
+// 逐字拆分
+document.querySelectorAll('[data-a$="chars"]').forEach(el => {
+  el.innerHTML = [...el.textContent].map(c => `<span class="ch">${c}</span>`).join('');
+});
+
+// ── 動畫引擎 ──
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const eo = p => 1 - Math.pow(1 - p, 3);
+const eexp = p => p >= 1 ? 1 : 1 - Math.pow(2, -10 * p);
+const eio = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const back = (p, c = 1.9) => 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2);
+const seg = (t, a, d) => clamp((t - a) / d);
+const lerp = (a, b, p) => a + (b - a) * p;
+
+const scenes = [...document.querySelectorAll('.scene')];
+// 溫馨版：把強烈的動畫換成柔和版本（同一個時間點，不同表情）
+const WARM_MAP = {slam: 'soft', stamp: 'bloom', chars: 'softchars', left: 'softleft', pop: 'bloom', cut: 'fade', blur: 'blur'};
+const UFADE = WARM ? .2 : .05;
+const anims = [...document.querySelectorAll('[data-a]')].map(el => {
+  let [s, d, type] = el.dataset.a.split(' ');
+  if (WARM && WARM_MAP[type]) { type = WARM_MAP[type]; d = Math.max(+d, type === 'fade' ? .4 : .85); }
+  const id = el.closest('.scene').id;
+  return {el, s: at(id, +s), d: +d, type, u: el.dataset.u ? at(id, +el.dataset.u) : null, chars: [...el.querySelectorAll('.ch')], base: el.style.transform || ''};
+});
+document.querySelectorAll('[data-u]:not([data-a])').forEach(el => {
+  const id = el.closest('.scene').id; anims.push({el, s: -1, d: .01, type: 'cut', u: at(id, +el.dataset.u), chars: [], base: ''});
+});
+
+function applyAnim(A, t) {
+  const p = seg(t, A.s, A.d), e = eo(p), el = A.el; let o = 1, tr = '', f = '';
+  switch (A.type) {
+    case 'cut': o = t >= A.s ? 1 : 0; break;
+    case 'fade': o = e; break;
+    case 'up': o = e; tr = `translateY(${(1 - e) * 60}px)`; break;
+    case 'left': o = e; tr = `translateX(${(1 - eexp(p)) * -140}px)`; break;
+    case 'pop': o = clamp(p * 3); tr = `scale(${.5 + .5 * back(p)})`; break;
+    case 'stamp': o = clamp(p * 4); tr = `scale(${p < 1 ? lerp(2.4, 1, back(p, 2.6)) : 1})`; break;
+    case 'slam': { const q = eexp(p); o = clamp(p * 5); tr = `scale(${lerp(2.1, 1, q)})`; f = p < 1 ? `blur(${(1 - q) * 14}px)` : ''; break; }
+    case 'blur': o = e; f = `blur(${(1 - e) * 22}px)`; tr = `scale(${1.1 - .1 * e})`; break;
+    case 'wipe': el.style.clipPath = `inset(-30% ${(1 - eio(p)) * 100}% -30% 0)`; o = p > 0 ? 1 : 0; break;
+    case 'chars': {
+      A.chars.forEach((c, i) => { const q = seg(t, A.s + i * .05, .22), qq = eexp(q);
+        c.style.opacity = clamp(q * 5); c.style.transform = `scale(${lerp(2.2, 1, qq)})`; c.style.filter = q < 1 ? `blur(${(1 - qq) * 10}px)` : ''; });
+      o = t >= A.s ? 1 : 0; break;
+    }
+    // ── 溫馨版 ──
+    case 'soft': o = e; tr = `translateY(${(1 - e) * 36}px)`; f = p < 1 ? `blur(${(1 - e) * 10}px)` : ''; break;
+    case 'bloom': o = e; tr = `scale(${lerp(1.14, 1, e)})`; break;
+    case 'softleft': o = e; tr = `translateX(${(1 - e) * -60}px)`; break;
+    case 'softchars': {
+      A.chars.forEach((c, i) => { const q = eo(seg(t, A.s + i * .09, .8));
+        c.style.opacity = q; c.style.transform = `translateY(${(1 - q) * 28}px)`; c.style.filter = q < 1 ? `blur(${(1 - q) * 8}px)` : ''; });
+      o = t >= A.s ? 1 : 0; break;
+    }
+  }
+  if (A.u !== null) o *= 1 - seg(t, A.u, UFADE);
+  el.style.opacity = o;
+  if (!['wipe', 'fade', 'cut', 'chars', 'softchars'].includes(A.type)) el.style.transform = A.base + ' ' + tr;
+  if (A.type === 'slam' || A.type === 'blur' || A.type === 'soft') el.style.filter = f;
+}
+
+const lastBefore = (arr, t) => { let r = -1e9; for (const x of arr) if (x <= t && x > r) r = x; return r; };
+const sceneAt = t => { let k = 0; SCN.forEach((sc, i) => { if (t >= ST[sc.id][0] - 1e-6) k = i; }); return k; };
+
+function wcPlace(g, x, y, ang, dist) {
+  g.setAttribute('transform', `translate(${x} ${y}) rotate(${ang})`);
+  g.querySelector('.spk').setAttribute('transform', `rotate(${dist / 48 * 57.3})`);
+}
+
+function render(t) {
+  const k = sceneAt(t), sc = SCN[k], nx = SCN[k + 1];
+  // 場景顯示＋轉場
+  scenes.forEach(el => {
+    const i = SI[el.id], [a, b] = ST[el.id];
+    let o = 0, tr = '', f = '';
+    if (t >= a && t < b) o = 1;
+    const next = SCN[i + 1];
+    const xf = WARM ? .5 : .3;  // 溶接半長
+    if (next && next.tr === 'fade' && t >= b - xf && t < b + xf) o = 1 - seg(t, b - xf, 2 * xf);
+    if (SCN[i].tr === 'fade' && t >= a - xf && t < a + xf) o = seg(t, a - xf, 2 * xf);
+    if (next && next.tr === 'zoom' && t >= b - .2 && t < b) { const p = seg(t, b - .2, .2); tr = `scale(${1 + p * .8})`; f = `blur(${p * 16}px)`; }
+    if (SCN[i].tr === 'zoom' && t >= a && t < a + .3) { const p = eexp(seg(t, a, .3)); tr = `scale(${lerp(.75, 1, p)})`; }
+    el.style.visibility = o > 0 ? 'visible' : 'hidden'; el.style.opacity = o; el.style.transform = tr; el.style.filter = f;
+  });
+  anims.forEach(A => applyAnim(A, t));
+
+  // 鏡頭：拍點推擠＋爆點震動
+  const h = lastBefore(HITS, t), he = t - h < 1 ? Math.exp(-(t - h) / .16) : 0;
+  const bIdx = Math.floor(t / BEAT + 1e-6), bt = bIdx * BEAT;
+  const punchOn = PUNCH_MODES.has(sc.mode) || (sc.mode === 'outro' && t < at('outro', 12)) || (sc.id === 'hook' && t >= at('hook', 8) && t < at('hook', 12));
+  const pe = punchOn ? Math.exp(-(t - bt) / .11) : 0;
+  if (WARM) {  // 溫馨版：不震動、不閃白；高光點＝柔光暈，鏡頭緩慢呼吸
+    const ge = t - h < 3 ? Math.exp(-(t - h) / .9) * Math.min(1, (t - h) / .25) : 0;
+    $('cam').style.transform = `scale(${1.01 + Math.sin(t * .35) * .01})`;
+    stage.style.setProperty('--rgb', '0px');
+    $('flash').style.opacity = 0;
+    $('glow').style.opacity = ge * .7;
+    $('leak').style.transform = `translate(${Math.sin(t * .23) * 6}%,${Math.cos(t * .17) * 5}%) rotate(${Math.sin(t * .1) * 8}deg)`;
+  } else {
+    const sh = he * 22;
+    $('cam').style.transform = `translate(${Math.sin(t * 93) * sh}px,${Math.cos(t * 71) * sh}px) scale(${1 + pe * .018 + he * .05})`;
+    stage.style.setProperty('--rgb', (he * 14 + pe * 3).toFixed(2) + 'px');
+    const trFlash = sc.tr === 'flash' ? Math.exp(-(t - S(sc.id)) / .12) * (t - S(sc.id) < .6 ? 1 : 0) : 0;
+    $('flash').style.opacity = Math.max(he * .85, trFlash * .9);
+  }
+  // 彩色斜切轉場
+  let wp = -1;
+  if (sc.tr === 'wipe' && t - S(sc.id) < .25) wp = .5 + seg(t, S(sc.id), .25) * .5;
+  if (nx && nx.tr === 'wipe' && ST[nx.id][0] - t < .25 && ST[nx.id][0] - t >= 0) wp = seg(t, ST[nx.id][0] - .25, .25) * .5;
+  [...$('wipe').children].forEach((b, i) => {
+    if (wp < 0) { b.style.display = 'none'; return; }
+    b.style.display = 'block';
+    const q = clamp(wp * 1.25 - i * .08);
+    b.style.left = lerp(-170, 130, q) + '%';
+  });
+  // 底片顆粒
+  const fr = Math.round(t * 30);
+  $('grain').style.transform = `translate(${(fr * 37) % 64}px,${(fr * 53) % 64}px)`;
+  $('endfade').style.opacity = seg(t, DURATION - 1, 1);
+
+  // ── 各場景細節 ──
+  // HOOK：輪椅被台階擋住
+  { const r = t - at('hook', 6), stopX = 736;
+    let x = lerp(-180, stopX, eo(seg(t, at('hook', 6), B(2))));
+    const bump = t >= at('hook', 8) ? Math.sin((t - at('hook', 8)) * 30) * 22 * Math.exp(-(t - at('hook', 8)) * 6) : 0;
+    x -= Math.abs(bump);
+    wcPlace($('hookWc'), x, 332, 0, x + 180);
+    const z = 1 + eio(seg(t, at('hook', 12), B(3.5))) * .35;
+    $('hookSvg').style.transform = `scale(${z})`; $('hookSvg').style.transformOrigin = '58% 80%'; }
+  // LOGO
+  $('logoRays').style.transform = `rotate(${t * 14}deg)`;
+  $('mq1').style.transform = `translateX(${-(t * 180) % 1800}px)`;
+  $('mq2').style.transform = `translateX(${-1800 + (t * 180) % 1800}px)`;
+  $('mq3').style.transform = `translateX(${-(t * 260) % 1800}px)`;
+  [['lr1', 0], ['lr2', .5], ['or1', 0], ['or2', .5]].forEach(([id, d]) => {
+    const base = id[0] === 'l' ? at('logo', d) : at('outro', d), p = seg(t, base, .9), r = $(id);
+    r.style.opacity = p > 0 && p < 1 ? (1 - p) : 0; r.style.transform = `scale(${1 + p * 1.2})`; });
+  document.querySelectorAll('.pulse').forEach(el => { el.style.transform = `scale(${1 + pe * .05})`; });
+  // RAMP：台階變斜坡，輪椅開上去
+  { const m = eio(seg(t, at('ramp', 0), B(1))), A0 = lerp(820, 560, m), B0 = lerp(820, 1060, m);
+    const d = `M0 380H${A0}L${B0} 290H1400`;
+    $('rampPath').setAttribute('d', d); $('rampFill').setAttribute('d', d + 'V420H0Z');
+    const p = eio(seg(t, at('ramp', 1), B(4))), x = lerp(-160, 1180, p);
+    let y = 380, ang = 0;
+    if (x > A0 && x < B0) { y = 380 - (x - A0) / (B0 - A0) * 90; ang = -Math.atan2(90, B0 - A0) * 57.3; } else if (x >= B0) y = 290;
+    wcPlace($('rampWc'), x, y - 48, ang, x);
+    const hp = seg(t, at('ramp', 5), .5);
+    $('heart').setAttribute('opacity', hp > 0 ? 1 : 0);
+    $('heart').setAttribute('transform', `translate(${1180} ${y - 250 - hp * 30}) scale(${hp > 0 ? 3 * back(hp, 3) : 0})`);
+    const bp = seg(t, at('ramp', 5), .5);
+    $('heartBurst').setAttribute('opacity', bp > 0 && bp < 1 ? 1 - bp : 0);
+    $('heartBurst').setAttribute('transform', `translate(1180 ${y - 280}) scale(${1 + bp * 2.2})`); }
+  // PEOPLE：鏡頭卡點推近
+  { const IW = 2000, IH = 593;
+    const wide = V ? {z: .62, fx: .5, fy: .5} : {z: .96, fx: .5, fy: .5};
+    const cy = V ? 1150 : 640;
+    const fz = V ? 1.9 : 2.1;
+    const shots = [[0, wide], [2, {z: fz, fx: .13, fy: .62}], [5, {z: fz, fx: .385, fy: .55}], [8, {z: fz, fx: .635, fy: .6}], [11, {z: fz, fx: .87, fy: .5}], [14, wide]];
+    let cur = shots[0][1], prev = shots[0][1], p = 1;
+    for (let i = 1; i < shots.length; i++) if (t >= at('people', shots[i][0])) { prev = shots[i - 1][1]; cur = shots[i][1]; p = WARM ? eio(seg(t, at('people', shots[i][0]), 1.3)) : eexp(seg(t, at('people', shots[i][0]), .35)); }
+    const z = lerp(prev.z, cur.z, p), fx = lerp(prev.fx, cur.fx, p), fy = lerp(prev.fy, cur.fy, p);
+    const drift = 1 + (t - S('people')) * .004;
+    const zz = z * drift;
+    $('heroCam').style.transform = `translate(${W / 2 - fx * IW * zz}px,${cy - fy * IH * zz}px) scale(${zz})`; }
+  // STAT：計數
+  { const sp = seg(t, at('stat', 0), B(4));
+    $('statNum').textContent = Math.round(eo(sp) * 285);
+    const hp = seg(t, at('stat', 4), .35);
+    $('statBox').style.transform = `scale(${t >= at('stat', 4) ? lerp(WARM ? 1.08 : 1.3, 1, WARM ? eo(seg(t, at('stat', 4), .8)) : eexp(hp)) : .9 + .1 * sp})`;
+    $('sr1').style.transform = `rotate(${t * 30}deg) scale(${1 + pe * .04})`; $('sr2').style.transform = `rotate(${-t * 18}deg)`; }
+  // CATS：斜切色塊
+  document.querySelectorAll('.catp').forEach(d => {
+    const s0 = at('cats', +d.dataset.b), p = eexp(seg(t, s0 - .12, .3));
+    const k = +d.dataset.b / 2, fromLeft = k % 2 === 0;
+    if (t < s0 - (WARM ? .35 : .12)) { d.style.visibility = 'hidden'; return; }
+    d.style.visibility = 'visible';
+    if (WARM) { d.style.clipPath = ''; d.style.opacity = eo(seg(t, s0 - .35, .7)); return; }
+    const c = lerp(-40, 140, p);
+    d.style.clipPath = fromLeft ? `polygon(0 0,${c}% 0,${c - 30}% 100%,0 100%)` : `polygon(100% 0,${100 - c + 30}% 0,${100 - c}% 100%,100% 100%)`;
+  });
+  // STORES：特寫推近＋照片連甩
+  document.querySelectorAll('.ft').forEach((f, i) => {
+    const s0 = at('stores', +f.dataset.b), p = seg(t, s0, B(3)), e = WARM ? eo(seg(t, s0 - .3, 1.1)) : eexp(seg(t, s0, .3)), mv = WARM ? .25 : 1;
+    f.querySelector('.ph').style.transform = `translateX(${(1 - e) * (V ? 0 : 400) * mv}px) translateY(${(1 - e) * (V ? 300 : 0) * mv}px) rotate(${lerp((i % 2 ? 8 : -8) * mv, i % 2 ? 1.5 : -1.5, e)}deg)`;
+    f.querySelector('.ph img').style.transform = `scale(${1.18 - .12 * p})`;
+    f.querySelector('.bgp').style.transform = `scale(${1.1 + .1 * p})`;
+  });
+  document.querySelectorAll('.pol').forEach(pl => {
+    const s0 = at('stores', +pl.dataset.b), p = seg(t, s0, WARM ? .9 : .2);
+    if (t < s0) { pl.style.opacity = 0; return; }
+    const q = WARM ? eo(p) : eexp(p);
+    pl.style.opacity = WARM ? q : 1;  // 溫馨版：像照片輕輕落在桌上
+    pl.style.transform = `translate(-50%,-50%) translate(${pl._x}px,${pl._y + (WARM ? (1 - q) * -60 : 0)}px) rotate(${pl._r + (1 - q) * (WARM ? 8 : 30)}deg) scale(${lerp(WARM ? 1.12 : 1.9, V ? 1 : .95, q)})`;
+  });
+  // BIZ：光束
+  $('bm1').style.left = ((t * 700) % (W + 600) - 300) + 'px';
+  $('bm2').style.left = ((t * 520 + W / 2) % (W + 600) - 300) + 'px';
+  // STEPS：連線
+  { const lp = eio(seg(t, at('steps', 1), B(4)));
+    $('stepLine').style.transform = V ? `scaleY(${lp})` : `scaleX(${lp})`; }
+  // BEN：金額計數
+  $('benAmt').textContent = (Math.round(eo(seg(t, at('ben', 3), B(1))) * 50) * 100).toLocaleString('en-US');
+  $('benBig').querySelector('.amt').style.transform = t >= at('ben', 4) ? `scale(${WARM ? lerp(1.08, 1, eo(seg(t, at('ben', 4), .8))) : lerp(1.35, 1, eexp(seg(t, at('ben', 4), .35)))})` : '';
+  $('outRays').style.transform = `rotate(${-t * 12}deg)`;
+  // 彩帶
+  Object.values(CONF).forEach(([parts, t0f]) => {
+    const dt = t - t0f();
+    parts.forEach(pt => {
+      if (WARM) {  // 光點、愛心緩緩飄升
+        if (dt < 0 || dt > pt.life) { pt.el.style.opacity = 0; return; }
+        pt.el.style.opacity = Math.sin(Math.PI * dt / pt.life) * .85;
+        pt.el.style.transform = `translate(${pt.x0 + Math.sin(dt * 1.4 + pt.ph) * 26}px,${pt.y0 - pt.up * dt}px)`;
+        return;
+      }
+      if (dt < 0 || dt > 3.2) { pt.el.style.opacity = 0; return; }
+      const x = pt.vx * dt * Math.exp(-dt * .9), y = pt.vy * dt * Math.exp(-dt * .9) + 900 * dt * dt * .5;
+      pt.el.style.opacity = clamp(3.2 - dt);
+      pt.el.style.transform = `translate(${x}px,${y}px) rotate(${pt.vr * dt}deg)`;
+    });
+  });
+}
+window.render = render;
+window.DURATION = DURATION;
+window.ST = ST;
+</script>
+<script>
+// ───────────── 預覽播放器（?render=1 時不載入） ─────────────
+function initPlayer() {
+  const FPS = 30, SIDE = 300, BAR = 150;
+  const css = document.createElement('style');
+  css.textContent = `
+  html,body{background:#15191d}
+  #pv{position:fixed;inset:0;font-family:"Noto Sans TC",sans-serif;color:#e8eef2;font-size:14px;user-select:none}
+  #pvStage{position:absolute;left:0;top:0;right:${SIDE}px;bottom:${BAR}px;overflow:hidden;background:#0d1013}
+  #pvSide{position:absolute;right:0;top:0;bottom:${BAR}px;width:${SIDE}px;background:#1b2126;overflow:auto;border-left:1px solid #2a3239}
+  #pvSide h3{font-size:12px;letter-spacing:.12em;color:#8b98a3;padding:14px 16px 6px;font-weight:700}
+  .pvSc{padding:9px 16px;cursor:pointer;border-left:3px solid transparent;display:flex;gap:10px;align-items:baseline}
+  .pvSc:hover{background:#232b31}
+  .pvSc.on{background:#23312d;border-left-color:#1FA48A}
+  .pvSc b{font-family:Poppins;font-size:12px;color:#8b98a3;width:22px;flex:none}
+  .pvSc span{flex:1}
+  .pvSc em{font-style:normal;color:#8b98a3;font-size:12px;font-family:Poppins}
+  #pvBar{position:absolute;left:0;right:0;bottom:0;height:${BAR}px;background:#1b2126;border-top:1px solid #2a3239;padding:10px 16px}
+  #pvTl{width:100%;height:58px;display:block;cursor:pointer}
+  #pvCtl{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  #pvCtl button{background:#2a3239;color:#e8eef2;border:0;border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer}
+  #pvCtl button.on{background:#1FA48A}
+  #pvCtl button:hover{filter:brightness(1.2)}
+  #pvRead{font-family:Poppins;font-variant-numeric:tabular-nums;margin-left:8px;color:#cfd8de}
+  #pvBeat{width:14px;height:14px;border-radius:50%;background:#333;margin-left:6px}
+  #pvHelp{margin-left:auto;color:#7d8a94;font-size:12px}
+  #stage{box-shadow:0 0 0 1px #333;color:var(--ink);font-size:16px}`;
+  document.head.appendChild(css);
+  const pv = document.createElement('div'); pv.id = 'pv';
+  pv.innerHTML = `<div id="pvStage"></div>
+    <div id="pvSide"><h3>場景（點擊跳轉）</h3><div id="pvList"></div></div>
+    <div id="pvBar"><canvas id="pvTl"></canvas>
+      <div id="pvCtl">
+        <button id="bPlay">▶ 播放</button>
+        <button id="bPrevS" title="上一場景 [">⏮</button>
+        <button id="bBackB" title="退一拍 Shift+←">−1拍</button>
+        <button id="bBackF" title="退一格 ←">−1格</button>
+        <button id="bFwdF" title="進一格 →">+1格</button>
+        <button id="bFwdB" title="進一拍 Shift+→">+1拍</button>
+        <button id="bNextS" title="下一場景 ]">⏭</button>
+        <button id="bLoop" title="L">🔁 循環此場景</button>
+        <button id="bClick" title="M">🥁 節拍器</button>
+        <button id="bSpeed">1×</button>
+        <button id="bMute">🔊</button>
+        <button id="bOri">${V ? '切換 16:9 橫式' : '切換 9:16 直式'}</button>
+        <button id="bStyle" class="on">${WARM ? '溫馨版 → 切換卡點版' : '卡點版 → 切換溫馨版'}</button>
+        <span id="pvRead"></span><span id="pvBeat"></span>
+        <span id="pvHelp">空白鍵 播放/暫停 · ←→ 逐格 · Shift+←→ 逐拍 · [ ] 換場景 · L 循環 · M 節拍器</span>
+      </div></div>`;
+  document.body.appendChild(pv);
+  $('pvStage').appendChild(stage);
+
+  const scs = PROJECT.scenes;
+  $('pvList').innerHTML = scs.map((sc, i) =>
+    `<div class="pvSc" data-i="${i}"><b>${String(i + 1).padStart(2, '0')}</b><span>${sc.name}</span><em>${sc.beats}拍</em></div>`).join('');
+
+  let t = 0, playing = false, loop = false, click = false, speed = 1, lastBeat = -1;
+  const audio = new Audio((window.MUSIC_SRCS && MUSIC_SRCS[STYLE]) || (WARM ? 'output/music_warm.wav' : 'output/music.wav')); audio.preload = 'auto';
+  let AC = null;
+  const tick = accent => {
+    AC = AC || new AudioContext();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.frequency.value = accent ? 1760 : 1175; g.gain.setValueAtTime(.35, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, AC.currentTime + .06);
+    o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + .07);
+  };
+  const sceneAt = tt => { let k = 0; scs.forEach((sc, i) => { if (tt >= S(sc.id) - 1e-6) k = i; }); return k; };
+  const seek = (nt, fromAudio) => {
+    t = clamp(nt, 0, DURATION);
+    if (!fromAudio) { try { audio.currentTime = t; } catch (e) {} }
+  };
+  const fit = () => {
+    const box = $('pvStage'), bw = box.clientWidth, bh = box.clientHeight;
+    const s = Math.min(bw / W, bh / H) * .96;
+    stage.style.position = 'absolute'; stage.style.transformOrigin = '0 0';
+    stage.style.transform = `translate(${(bw - W * s) / 2}px,${(bh - H * s) / 2}px) scale(${s})`;
+    const c = $('pvTl'); c.width = c.clientWidth * devicePixelRatio; c.height = 58 * devicePixelRatio;
+  };
+  const PAL = ['#1FA48A','#2F8FD6','#D8327C','#F0892B','#8B8FE0','#3BB3A4','#E7A04B'];
+  const drawTl = () => {
+    const c = $('pvTl'), g = c.getContext('2d'), w = c.width, h = c.height, r = devicePixelRatio;
+    const X = tt => tt / DURATION * w;
+    g.clearRect(0, 0, w, h);
+    scs.forEach((sc, i) => {
+      const x0 = X(S(sc.id)), x1 = i < scs.length - 1 ? X(S(scs[i + 1].id)) : w;
+      g.fillStyle = PAL[i % PAL.length] + (i === sceneAt(t) ? 'ff' : '88');
+      g.fillRect(x0 + 1, 18 * r, x1 - x0 - 2, 22 * r);
+      g.fillStyle = '#fff'; g.font = `${11 * r}px "Noto Sans TC"`;
+      g.save(); g.beginPath(); g.rect(x0 + 1, 18 * r, x1 - x0 - 4, 22 * r); g.clip();
+      g.fillText(`${i + 1} ${sc.name.split('｜').pop()}`, x0 + 5 * r, 33 * r); g.restore();
+    });
+    const nb = Math.round((DURATION - PROJECT.tail) / BEAT);
+    for (let b = 0; b <= nb; b++) {
+      const x = X(B(b)); g.fillStyle = b % 4 === 0 ? '#9aa6ae' : '#4a555d';
+      g.fillRect(x, (b % 4 === 0 ? 4 : 9) * r, r, (b % 4 === 0 ? 12 : 7) * r);
+    }
+    g.fillStyle = '#9aa6ae'; g.font = `${10 * r}px Poppins`;
+    for (let s = 0; s <= DURATION; s += 10) g.fillText(s + 's', X(s) + 3 * r, 54 * r);
+    g.fillStyle = '#ff4d4d'; g.fillRect(X(t) - r, 0, 2 * r, h);
+  };
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${(s % 60).toFixed(2).padStart(5, '0')}`;
+  const update = () => {
+    render(t); drawTl();
+    const k = sceneAt(t), sc = scs[k], rel = t - S(sc.id);
+    const gb = t / BEAT, bar = Math.floor(gb / 4) + 1, bt = Math.floor(gb % 4) + 1;
+    $('pvRead').textContent = `${fmt(t)} / ${fmt(DURATION)} · 第 ${bar} 小節 第 ${bt} 拍 · 格 ${Math.round(t * FPS)} · 場景 ${k + 1}：+${(rel / BEAT).toFixed(2)} 拍`;
+    document.querySelectorAll('.pvSc').forEach((el, i) => el.classList.toggle('on', i === k));
+    $('bPlay').textContent = playing ? '❚❚ 暫停' : '▶ 播放';
+    const beatIdx = Math.floor(gb + 1e-6), ph = gb - beatIdx;
+    $('pvBeat').style.background = ph < .15 ? (beatIdx % 4 === 0 ? '#ff4d4d' : '#F5B82E') : '#333';
+    if (playing && click && beatIdx !== lastBeat) tick(beatIdx % 4 === 0);
+    lastBeat = beatIdx;
+  };
+  let prev = performance.now();
+  const frame = now => {
+    const dt = (now - prev) / 1000; prev = now;
+    if (playing) {
+      if (!audio.paused && !audio.muted && speed === 1 && audio.readyState >= 2) seek(audio.currentTime, true);
+      else seek(t + dt * speed, true);
+      if (loop) {
+        const k = sceneAt(t - 1e-3), sc = scs[k], end = k < scs.length - 1 ? S(scs[k + 1].id) : DURATION;
+        if (t >= end - 1e-3) { seek(S(sc.id)); }
+      } else if (t >= DURATION) { playing = false; audio.pause(); }
+    }
+    update(); requestAnimationFrame(frame);
+  };
+  const setPlay = p => {
+    playing = p;
+    if (p) { if (t >= DURATION - .01) seek(0); audio.currentTime = t; audio.playbackRate = speed; audio.play().catch(() => {}); }
+    else audio.pause();
+  };
+  const loopScene = k => { if (loop) { const sc = scs[k]; seek(S(sc.id)); } };
+  const goScene = d => { const k = clamp(sceneAt(t + 1e-3) + d, 0, scs.length - 1); seek(S(scs[k].id)); };
+  $('bPlay').onclick = () => setPlay(!playing);
+  $('bPrevS').onclick = () => goScene(t - S(scs[sceneAt(t)].id) > .3 ? 0 : -1);
+  $('bNextS').onclick = () => goScene(1);
+  $('bBackF').onclick = () => { setPlay(false); seek(Math.round(t * FPS - 1) / FPS); };
+  $('bFwdF').onclick = () => { setPlay(false); seek(Math.round(t * FPS + 1) / FPS); };
+  $('bBackB').onclick = () => { setPlay(false); seek(B(Math.ceil(t / BEAT - 1.001))); };
+  $('bFwdB').onclick = () => { setPlay(false); seek(B(Math.floor(t / BEAT + 1.001))); };
+  $('bLoop').onclick = () => { loop = !loop; $('bLoop').classList.toggle('on', loop); };
+  $('bClick').onclick = () => { click = !click; $('bClick').classList.toggle('on', click); };
+  $('bSpeed').onclick = () => { speed = speed === 1 ? .5 : speed === .5 ? .25 : 1; $('bSpeed').textContent = speed + '×'; audio.playbackRate = speed; };
+  $('bMute').onclick = () => { audio.muted = !audio.muted; $('bMute').textContent = audio.muted ? '🔇' : '🔊'; };
+  $('bStyle').onclick = () => { const u = new URL(location.href); WARM ? u.searchParams.delete('style') : u.searchParams.set('style', 'warm'); u.searchParams.delete('t'); location.href = u; };
+  $('bOri').onclick = () => { const u = new URL(location.href); V ? u.searchParams.delete('v') : u.searchParams.set('v', '1'); u.searchParams.set('t', t.toFixed(3)); location.href = u; };
+  $('pvList').onclick = e => { const el = e.target.closest('.pvSc'); if (el) { seek(S(scs[+el.dataset.i].id)); } };
+  const tl = $('pvTl'); let drag = false;
+  const tlSeek = e => { const r = tl.getBoundingClientRect(); seek((e.clientX - r.left) / r.width * DURATION); };
+  tl.onpointerdown = e => { drag = true; tl.setPointerCapture(e.pointerId); tlSeek(e); };
+  tl.onpointermove = e => drag && tlSeek(e);
+  tl.onpointerup = () => drag = false;
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (k === ' ') { e.preventDefault(); setPlay(!playing); }
+    else if (k === 'ArrowLeft') (e.shiftKey ? $('bBackB') : $('bBackF')).click();
+    else if (k === 'ArrowRight') (e.shiftKey ? $('bFwdB') : $('bFwdF')).click();
+    else if (k === '[') $('bPrevS').click();
+    else if (k === ']') $('bNextS').click();
+    else if (k === 'l' || k === 'L') $('bLoop').click();
+    else if (k === 'm' || k === 'M') $('bClick').click();
+  });
+  addEventListener('resize', fit);
+  const startAt = +Q.get('t') || 0, startScene = Q.get('scene');
+  if (startScene) { const k = scs.findIndex(s => s.id === startScene || String(scs.indexOf(s) + 1) === startScene); if (k >= 0) { seek(S(scs[k].id)); loop = true; $('bLoop').classList.add('on'); } }
+  else seek(startAt);
+  document.fonts.ready.then(() => { fit(); requestAnimationFrame(frame); });
+  window.PV = { seek, get t() { return t; } };
+}
+
+if (!Q.has('render')) initPlayer(); else render(0);
+</script>
+</body>
+</html>
